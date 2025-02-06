@@ -647,6 +647,7 @@ public class JcaTlsCrypto
         case MACAlgorithm.hmac_sha256:
         case MACAlgorithm.hmac_sha384:
         case MACAlgorithm.hmac_sha512:
+            case MACAlgorithm.hmac_gost:
             return true;
 
         default:
@@ -1112,12 +1113,14 @@ public class JcaTlsCrypto
             return isUsableCipher("SM4/CCM/NoPadding", 128);
         case EncryptionAlgorithm.SM4_GCM:
             return isUsableCipher("SM4/GCM/NoPadding", 128);
+            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+                return isUsableCipher("GOST3412-2015/CTR_ACPKM/NoPadding", 256);
+
 
         case EncryptionAlgorithm._28147_CNT_IMIT:
         case EncryptionAlgorithm.DES_CBC:
         case EncryptionAlgorithm.DES40_CBC:
         case EncryptionAlgorithm.IDEA_CBC:
-        case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
         case EncryptionAlgorithm.MAGMA_CTR_OMAC:
         case EncryptionAlgorithm.RC2_CBC_40:
         case EncryptionAlgorithm.RC4_128:

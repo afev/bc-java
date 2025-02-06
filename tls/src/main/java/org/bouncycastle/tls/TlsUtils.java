@@ -3778,6 +3778,8 @@ public class TlsUtils
         case CipherSuite.TLS_RSA_WITH_ARIA_256_CBC_SHA384:
             return MACAlgorithm.hmac_sha384;
 
+            case CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC:
+                return MACAlgorithm.hmac_gost;
         default:
             return -1;
         }
@@ -4443,6 +4445,7 @@ public class TlsUtils
 
         // TODO[RFC 9189]
         case KeyExchangeAlgorithm.GOSTR341112_256:
+            return true;
 
         default:
             return false;
@@ -4521,7 +4524,10 @@ public class TlsUtils
             return factory.createSRPKeyExchangeClient(keyExchange, client.getSRPIdentity(),
                 client.getSRPConfigVerifier());
 
-        default:
+            case KeyExchangeAlgorithm.GOSTR341112_256:
+                return factory.createGOSTKeyExchangeClient(keyExchange);
+
+            default:
             /*
              * Note: internal error here; the TlsProtocol implementation verifies that the
              * server-selected cipher suite was in the list of client-offered cipher suites, so if

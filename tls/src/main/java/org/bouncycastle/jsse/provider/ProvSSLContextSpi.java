@@ -307,6 +307,7 @@ class ProvSSLContextSpi
         addCipherSuite(cs, "TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384", CipherSuite.TLS_RSA_WITH_CAMELLIA_256_GCM_SHA384);
         addCipherSuite(cs, "TLS_RSA_WITH_NULL_SHA", CipherSuite.TLS_RSA_WITH_NULL_SHA);
         addCipherSuite(cs, "TLS_RSA_WITH_NULL_SHA256", CipherSuite.TLS_RSA_WITH_NULL_SHA256);
+        addCipherSuite(cs, "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC", CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC);
 
         return Collections.unmodifiableMap(cs);
     }

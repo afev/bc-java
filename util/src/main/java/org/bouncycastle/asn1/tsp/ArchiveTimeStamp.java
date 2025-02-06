@@ -22,7 +22,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
  * ASN.1 Archive Timestamp
  * <p>
  * ArchiveTimeStamp ::= SEQUENCE {
- * digestAlgorithm [Ø] AlgorithmIdentifier OPTIONAL,
+ * digestAlgorithm [0] AlgorithmIdentifier OPTIONAL,
  * attributes      [1] Attributes OPTIONAL,
  * reducedHashtree [2] SEQUENCE OF PartialHashtree OPTIONAL,
  * timeStamp       ContentInfo}

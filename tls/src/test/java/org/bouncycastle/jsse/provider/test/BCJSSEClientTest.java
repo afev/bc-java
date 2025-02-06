@@ -151,7 +151,8 @@ public class BCJSSEClientTest
     private static BCExtendedSSLSession runInContext(SSLContext sslContext, BCExtendedSSLSession sessionToResume)
         throws Exception
     {
-        String host = "www.google.com";
+        // String host = "www.google.com";
+        String host = "www.cryptopro.ru";
 //        String host = "www.oracle.com";
 //        String host = "www.microsoft.com";
 //        String host = "tools.ietf.org";
@@ -164,6 +165,7 @@ public class BCJSSEClientTest
         SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket(host, port);
 
         sslSocket.setEnabledProtocols(new String[]{ VERSION });
+        sslSocket.setEnabledCipherSuites(new String[]{ "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC" });
 
         if (null != sessionToResume)
         {
