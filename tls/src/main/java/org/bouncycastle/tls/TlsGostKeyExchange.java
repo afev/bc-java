@@ -15,6 +15,7 @@ public class TlsGostKeyExchange
 {
     private static int checkKeyExchange(int keyExchange)
     {
+        System.out.println("checkKeyExchange not implemented.");
         switch (keyExchange)
         {
             case KeyExchangeAlgorithm.GOSTR341112_256:
@@ -36,43 +37,51 @@ public class TlsGostKeyExchange
     public void skipServerCredentials()
         throws IOException
     {
+        System.out.println("skipServerCredentials not implemented.");
         throw new TlsFatalAlert(AlertDescription.internal_error);
     }
 
     public void processServerCredentials(TlsCredentials serverCredentials)
         throws IOException
     {
+        System.out.println("processServerCredentials not implemented.");
     }
 
     public void processServerCertificate(Certificate serverCertificate)
         throws IOException
     {
+        System.out.println("processServerCertificate not implemented.");
     }
 
     public short[] getClientCertificateTypes()
     {
+        System.out.println("getClientCertificateTypes not implemented.");
         return new short[]{ 0 };
     }
 
     public void processClientCredentials(TlsCredentials clientCredentials)
         throws IOException
     {
+        System.out.println("processClientCredentials not implemented.");
     }
 
     public void generateClientKeyExchange(OutputStream output)
         throws IOException
     {
+        System.out.println("generateClientKeyExchange not implemented.");
     }
 
     public void processClientKeyExchange(InputStream input)
         throws IOException
     {
+        System.out.println("processClientKeyExchange not implemented.");
     }
 
     public TlsSecret generatePreMasterSecret()
         throws IOException
     {
+        System.out.println("generatePreMasterSecret not implemented.");
         return null;
-
     }
+
 }

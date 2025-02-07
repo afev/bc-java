@@ -475,8 +475,8 @@ class CipherSuiteInfo
             return "SM4/CCM/NoPadding";
         case EncryptionAlgorithm.SM4_GCM:
             return "SM4/GCM/NoPadding";
-            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
-                return "GOST3412-2015/CTR_ACPKM/NoPadding";
+        case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+            return "GOST3412-2015/CTR_ACPKM/NoPadding";
         default:
             throw new IllegalArgumentException();
         }
