@@ -1113,10 +1113,8 @@ public class JcaTlsCrypto
             return isUsableCipher("SM4/CCM/NoPadding", 128);
         case EncryptionAlgorithm.SM4_GCM:
             return isUsableCipher("SM4/GCM/NoPadding", 128);
-            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
-                return isUsableCipher("GOST3412-2015/CTR_ACPKM/NoPadding", 256);
-
-
+        case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+            return isUsableCipher("GOST3412-2015/CTR_ACPKM/NoPadding", 256);
         case EncryptionAlgorithm._28147_CNT_IMIT:
         case EncryptionAlgorithm.DES_CBC:
         case EncryptionAlgorithm.DES40_CBC:

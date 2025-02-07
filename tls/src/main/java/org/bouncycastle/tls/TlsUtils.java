@@ -3777,9 +3777,8 @@ public class TlsUtils
         case CipherSuite.TLS_RSA_PSK_WITH_NULL_SHA384:
         case CipherSuite.TLS_RSA_WITH_ARIA_256_CBC_SHA384:
             return MACAlgorithm.hmac_sha384;
-
-            case CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC:
-                return MACAlgorithm.hmac_gost;
+        case CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC:
+            return MACAlgorithm.hmac_gost;
         default:
             return -1;
         }
