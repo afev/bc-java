@@ -4523,10 +4523,10 @@ public class TlsUtils
             return factory.createSRPKeyExchangeClient(keyExchange, client.getSRPIdentity(),
                 client.getSRPConfigVerifier());
 
-            case KeyExchangeAlgorithm.GOSTR341112_256:
-                return factory.createGOSTKeyExchangeClient(keyExchange);
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return factory.createGOSTKeyExchangeClient(keyExchange);
 
-            default:
+        default:
             /*
              * Note: internal error here; the TlsProtocol implementation verifies that the
              * server-selected cipher suite was in the list of client-offered cipher suites, so if

@@ -1,5 +1,6 @@
 package org.bouncycastle.tls;
 
+import org.bouncycastle.tls.crypto.TlsCertificate;
 import org.bouncycastle.tls.crypto.TlsEncryptor;
 import org.bouncycastle.tls.crypto.TlsSecret;
 
@@ -25,9 +26,11 @@ public class TlsGostKeyExchange
         }
     }
 
-    protected TlsCredentialedDecryptor serverCredentials = null;
     protected TlsEncryptor serverEncryptor;
     protected TlsSecret preMasterSecret;
+
+    protected TlsCredentialedSigner serverCredentials = null;
+    protected TlsCertificate serverCertificate = null;
 
     public TlsGostKeyExchange(int keyExchange)
     {
@@ -37,26 +40,24 @@ public class TlsGostKeyExchange
     public void skipServerCredentials()
         throws IOException
     {
-        System.out.println("skipServerCredentials not implemented.");
         throw new TlsFatalAlert(AlertDescription.internal_error);
     }
 
     public void processServerCredentials(TlsCredentials serverCredentials)
         throws IOException
     {
-        System.out.println("processServerCredentials not implemented.");
+        this.serverCredentials = TlsUtils.requireSignerCredentials(serverCredentials);
     }
 
     public void processServerCertificate(Certificate serverCertificate)
         throws IOException
     {
-        System.out.println("processServerCertificate not implemented.");
+        this.serverCertificate = serverCertificate.getCertificateAt(0);
     }
 
     public short[] getClientCertificateTypes()
     {
-        System.out.println("getClientCertificateTypes not implemented.");
-        return new short[]{ 0 };
+        return new short[]{ ClientCertificateType.gost_sign256 };
     }
 
     public void processClientCredentials(TlsCredentials clientCredentials)

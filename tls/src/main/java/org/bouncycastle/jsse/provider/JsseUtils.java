@@ -368,6 +368,8 @@ abstract class JsseUtils
             return "SRP_DSS";
         case KeyExchangeAlgorithm.SRP_RSA:
             return "SRP_RSA";
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return "GR3410-2012-256";
         default:
             throw new IllegalArgumentException();
         }
