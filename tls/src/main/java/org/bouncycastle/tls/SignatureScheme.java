@@ -53,6 +53,11 @@ public class SignatureScheme
     public static final int DRAFT_mldsa87 = 0x0906;
 
     /*
+     * RFC 9189
+     */
+    public static final int gostr34102012_256 = 0x0840;
+
+    /*
      * RFC 8446 reserved for private use (0xFE00..0xFFFF)
      */
 
@@ -162,6 +167,8 @@ public class SignatureScheme
             return "DRAFT_mldsa65";
         case DRAFT_mldsa87:
             return "DRAFT_mldsa87";
+        case gostr34102012_256:
+            return "gostr34102012_256";
         default:
             return "UNKNOWN";
         }

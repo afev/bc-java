@@ -4444,7 +4444,7 @@ public class TlsUtils
 
         // TODO[RFC 9189]
         case KeyExchangeAlgorithm.GOSTR341112_256:
-            return true;
+            return crypto.hasSignatureAlgorithm(SignatureAlgorithm.gostr34102012_256);
 
         default:
             return false;

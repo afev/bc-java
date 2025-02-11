@@ -749,6 +749,7 @@ public class JcaTlsCrypto
         // TODO[RFC 9189]
         case SignatureAlgorithm.gostr34102012_256:
         case SignatureAlgorithm.gostr34102012_512:
+            return true;
 
         // TODO[RFC 8998]
 //        case SignatureAlgorithm.sm2:
