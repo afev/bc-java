@@ -163,6 +163,13 @@ public interface TlsCrypto
     TlsSecret generateRSAPreMasterSecret(ProtocolVersion clientVersion);
 
     /**
+     * Create a TlsSecret object containing a randomly-generated GOST PreMasterSecret
+     *
+     * @return a TlsSecret containing the PreMasterSecret.
+     */
+    TlsSecret generateGOSTPreMasterSecret();
+
+    /**
      * Return the primary (safest) SecureRandom for this crypto.
      *
      * @return a SecureRandom suitable for key generation.

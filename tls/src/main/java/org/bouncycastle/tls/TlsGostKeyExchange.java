@@ -1,12 +1,12 @@
 package org.bouncycastle.tls;
 
-import org.bouncycastle.tls.crypto.TlsCertificate;
-import org.bouncycastle.tls.crypto.TlsEncryptor;
-import org.bouncycastle.tls.crypto.TlsSecret;
+import org.bouncycastle.tls.crypto.*;
 
+import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.AlgorithmParameters;
 
 /**
  * (D)TLS GOST key exchange.
@@ -26,11 +26,11 @@ public class TlsGostKeyExchange
         }
     }
 
-    protected TlsEncryptor serverEncryptor;
+    protected TlsEncryptor encryptor;
     protected TlsSecret preMasterSecret;
 
     protected TlsCredentialedSigner serverCredentials = null;
-    protected TlsCertificate serverCertificate = null;
+    protected Certificate serverCertificate = null;
 
     public TlsGostKeyExchange(int keyExchange)
     {
@@ -52,7 +52,7 @@ public class TlsGostKeyExchange
     public void processServerCertificate(Certificate serverCertificate)
         throws IOException
     {
-        this.serverCertificate = serverCertificate.getCertificateAt(0);
+        this.serverCertificate = serverCertificate;
     }
 
     public short[] getClientCertificateTypes()
@@ -69,7 +69,11 @@ public class TlsGostKeyExchange
     public void generateClientKeyExchange(OutputStream output)
         throws IOException
     {
-        System.out.println("generateClientKeyExchange not implemented.");
+        byte[] sv = generateSV();
+        TlsCertificate tlsCertificate = serverCertificate.getCertificateAt(0);
+        this.encryptor = tlsCertificate.createEncryptor(TlsCertificateRole.GOST_ENCRYPTION, keyExchange, new IvParameterSpec(sv));
+        // Exports key as GostR3410_GostR3412_KeyTransport.
+        this.preMasterSecret = TlsUtils.generateEncryptedGOSTPreMasterSecret(context, encryptor, output);
     }
 
     public void processClientKeyExchange(InputStream input)
@@ -83,6 +87,15 @@ public class TlsGostKeyExchange
     {
         System.out.println("generatePreMasterSecret not implemented.");
         return null;
+    }
+
+    private byte[] generateSV() {
+        TlsHash hash = context.getCrypto().createHash(CryptoHashAlgorithm.gostr3411_2012_256);
+        byte[] clientRandom = context.getSecurityParameters().getClientRandom();
+        byte[] serverRandom = context.getSecurityParameters().getServerRandom();
+        hash.update(clientRandom, 0, clientRandom.length);
+        hash.update(serverRandom, 0, serverRandom.length);
+        return hash.calculateHash(); // 32 bytes
     }
 
 }

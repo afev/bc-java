@@ -3778,7 +3778,7 @@ public class TlsUtils
         case CipherSuite.TLS_RSA_WITH_ARIA_256_CBC_SHA384:
             return MACAlgorithm.hmac_sha384;
         case CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC:
-            return MACAlgorithm.hmac_gost;
+            return MACAlgorithm.hmac_gost_2012_256;
         default:
             return -1;
         }
@@ -5944,6 +5944,19 @@ public class TlsUtils
         TlsSecret preMasterSecret = context.getCrypto().generateRSAPreMasterSecret(version);
         byte[] encryptedPreMasterSecret = preMasterSecret.encrypt(encryptor);
         writeEncryptedPMS(context, encryptedPreMasterSecret, output);
+        return preMasterSecret;
+    }
+
+    /**
+     * Generate a pre_master_secret and send it encrypted to the server.
+     */
+    public static TlsSecret generateEncryptedGOSTPreMasterSecret(TlsContext context,
+        TlsEncryptor encryptor, OutputStream output) throws IOException
+    {
+        TlsSecret preMasterSecret = context.getCrypto().generateGOSTPreMasterSecret();
+        byte[] encryptedPreMasterSecret = preMasterSecret.encrypt(encryptor);
+        // ASN.1 encoded data, opaque is not needed.
+        SSL3Utils.writeEncryptedPMS(encryptedPreMasterSecret, output);
         return preMasterSecret;
     }
 

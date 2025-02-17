@@ -2,6 +2,7 @@ package org.bouncycastle.tls.crypto.impl.bc;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.spec.AlgorithmParameterSpec;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Encoding;
@@ -95,6 +96,13 @@ public class BcTlsRawKeyCertificate
         }
 
         throw new TlsFatalAlert(AlertDescription.internal_error);
+    }
+
+    @Override
+    public TlsEncryptor createEncryptor(int tlsCertificateRole, int encryptionAlgorithm,
+        AlgorithmParameterSpec cipherParams) throws IOException {
+        // TODO
+        return null;
     }
 
     public TlsVerifier createVerifier(short signatureAlgorithm) throws IOException

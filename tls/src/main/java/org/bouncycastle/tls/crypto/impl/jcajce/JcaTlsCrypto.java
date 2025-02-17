@@ -16,6 +16,8 @@ import java.util.Vector;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyAgreement;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import org.bouncycastle.jcajce.util.JcaJceHelper;
 import org.bouncycastle.jcajce.util.ProviderJcaJceHelper;
@@ -121,6 +123,11 @@ public class JcaTlsCrypto
         {
             return getHelper().createCipher("RSA/ECB/PKCS1Padding");    // try old style
         }
+    }
+
+    Cipher createGOSTEncryptionCipher(String cipherName) throws GeneralSecurityException
+    {
+        return getHelper().createCipher(cipherName);
     }
 
     public TlsNonceGenerator createNonceGenerator(byte[] additionalSeedMaterial)
@@ -238,7 +245,6 @@ public class JcaTlsCrypto
             case EncryptionAlgorithm.SM4_GCM:
                 // NOTE: Ignores macAlgorithm
                 return createCipher_SM4_GCM(cryptoParams);
-
             case EncryptionAlgorithm._28147_CNT_IMIT:
             case EncryptionAlgorithm.DES40_CBC:
             case EncryptionAlgorithm.DES_CBC:
@@ -647,7 +653,7 @@ public class JcaTlsCrypto
         case MACAlgorithm.hmac_sha256:
         case MACAlgorithm.hmac_sha384:
         case MACAlgorithm.hmac_sha512:
-            case MACAlgorithm.hmac_gost:
+        case MACAlgorithm.hmac_gost_2012_256:
             return true;
 
         default:
@@ -830,6 +836,20 @@ public class JcaTlsCrypto
         getSecureRandom().nextBytes(data);
         TlsUtils.writeVersion(version, data, 0);
         return adoptLocalSecret(data);
+    }
+
+    public TlsSecret generateGOSTPreMasterSecret()
+    {
+        try
+        {
+            KeyGenerator kg = getHelper().createKeyGenerator("MASTER_KEY"); // aka "TLS"
+            SecretKey preMasterSecret = kg.generateKey();
+            return new JceTlsSecretKey(this, preMasterSecret);
+        }
+        catch (GeneralSecurityException e)
+        {
+            throw Exceptions.illegalArgumentException("unable to create key generator:" + e.getMessage(), e);
+        }
     }
 
     public TlsHash createHash(int cryptoHashAlgorithm)

@@ -11,6 +11,8 @@ import org.bouncycastle.tls.AlertDescription;
 import org.bouncycastle.tls.TlsFatalAlert;
 import org.bouncycastle.tls.crypto.TlsEncryptor;
 
+import javax.crypto.SecretKey;
+
 final class BcTlsRSAEncryptor
     implements TlsEncryptor
 {
@@ -47,5 +49,11 @@ final class BcTlsRSAEncryptor
              */
             throw new TlsFatalAlert(AlertDescription.internal_error, e);
         }
+    }
+
+    @Override
+    public byte[] wrap(SecretKey secretKey) throws IOException {
+        byte[] input = secretKey.getEncoded();
+        return encrypt(input, 0, input.length);
     }
 }

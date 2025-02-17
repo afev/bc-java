@@ -504,6 +504,12 @@ public class BcTlsCrypto
         return adoptLocalSecret(data);
     }
 
+    @Override
+    public TlsSecret generateGOSTPreMasterSecret() {
+        // TODO
+        return null;
+    }
+
     public Digest cloneDigest(int cryptoHashAlgorithm, Digest digest)
     {
         switch (cryptoHashAlgorithm)
