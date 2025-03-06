@@ -85,17 +85,17 @@ public class TlsGostKeyExchange
     public TlsSecret generatePreMasterSecret()
         throws IOException
     {
-        System.out.println("generatePreMasterSecret not implemented.");
-        return null;
+        TlsSecret tmp = this.preMasterSecret;
+        this.preMasterSecret = null;
+        return tmp;
     }
 
     private byte[] generateSV() {
+        SecurityParameters sp = context.getSecurityParametersHandshake();
+        byte[] seed = TlsUtils.concat(sp.getClientRandom(), sp.getServerRandom());
         TlsHash hash = context.getCrypto().createHash(CryptoHashAlgorithm.gostr3411_2012_256);
-        byte[] clientRandom = context.getSecurityParameters().getClientRandom();
-        byte[] serverRandom = context.getSecurityParameters().getServerRandom();
-        hash.update(clientRandom, 0, clientRandom.length);
-        hash.update(serverRandom, 0, serverRandom.length);
-        return hash.calculateHash(); // 32 bytes
+        hash.update(seed, 0, seed.length);
+        return hash.calculateHash();
     }
 
 }
