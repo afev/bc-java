@@ -96,7 +96,7 @@ public final class TlsSuiteHMac
 
         mac.update(msg, msgOff, msgLen);
 
-        return truncate(mac.calculateMAC());
+        return truncate(mac.calculateMAC(seqNo));
     }
 
     public byte[] calculateMacConstantTime(long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff,

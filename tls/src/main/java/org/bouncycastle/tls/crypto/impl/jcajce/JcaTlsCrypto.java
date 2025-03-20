@@ -14,27 +14,11 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyAgreement;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import javax.crypto.*;
 
 import org.bouncycastle.jcajce.util.JcaJceHelper;
 import org.bouncycastle.jcajce.util.ProviderJcaJceHelper;
-import org.bouncycastle.tls.AlertDescription;
-import org.bouncycastle.tls.CertificateType;
-import org.bouncycastle.tls.DigitallySigned;
-import org.bouncycastle.tls.EncryptionAlgorithm;
-import org.bouncycastle.tls.HashAlgorithm;
-import org.bouncycastle.tls.MACAlgorithm;
-import org.bouncycastle.tls.NamedGroup;
-import org.bouncycastle.tls.ProtocolVersion;
-import org.bouncycastle.tls.SignatureAlgorithm;
-import org.bouncycastle.tls.SignatureAndHashAlgorithm;
-import org.bouncycastle.tls.SignatureScheme;
-import org.bouncycastle.tls.TlsDHUtils;
-import org.bouncycastle.tls.TlsFatalAlert;
-import org.bouncycastle.tls.TlsUtils;
+import org.bouncycastle.tls.*;
 import org.bouncycastle.tls.crypto.CryptoHashAlgorithm;
 import org.bouncycastle.tls.crypto.CryptoSignatureAlgorithm;
 import org.bouncycastle.tls.crypto.SRP6Group;
@@ -60,15 +44,7 @@ import org.bouncycastle.tls.crypto.TlsSRPConfig;
 import org.bouncycastle.tls.crypto.TlsSecret;
 import org.bouncycastle.tls.crypto.TlsStreamSigner;
 import org.bouncycastle.tls.crypto.TlsStreamVerifier;
-import org.bouncycastle.tls.crypto.impl.AEADNonceGenerator;
-import org.bouncycastle.tls.crypto.impl.AEADNonceGeneratorFactory;
-import org.bouncycastle.tls.crypto.impl.AbstractTlsCrypto;
-import org.bouncycastle.tls.crypto.impl.TlsAEADCipher;
-import org.bouncycastle.tls.crypto.impl.TlsAEADCipherImpl;
-import org.bouncycastle.tls.crypto.impl.TlsBlockCipher;
-import org.bouncycastle.tls.crypto.impl.TlsBlockCipherImpl;
-import org.bouncycastle.tls.crypto.impl.TlsImplUtils;
-import org.bouncycastle.tls.crypto.impl.TlsNullCipher;
+import org.bouncycastle.tls.crypto.impl.*;
 import org.bouncycastle.tls.crypto.impl.jcajce.srp.SRP6Client;
 import org.bouncycastle.tls.crypto.impl.jcajce.srp.SRP6Server;
 import org.bouncycastle.tls.crypto.impl.jcajce.srp.SRP6VerifierGenerator;
@@ -122,6 +98,17 @@ public class JcaTlsCrypto
         catch (GeneralSecurityException e)
         {
             return getHelper().createCipher("RSA/ECB/PKCS1Padding");    // try old style
+        }
+    }
+
+    public TlsSecret adoptSecret(TlsSecret secret)
+    {
+        if (secret instanceof JceTlsSecretKey)
+        {
+            return secret;
+        }
+        else {
+            return super.adoptSecret(secret);
         }
     }
 
@@ -245,11 +232,12 @@ public class JcaTlsCrypto
             case EncryptionAlgorithm.SM4_GCM:
                 // NOTE: Ignores macAlgorithm
                 return createCipher_SM4_GCM(cryptoParams);
+            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+                return createCipher_GOST(cryptoParams, "GOST3412_2015_K", 256, macAlgorithm);
             case EncryptionAlgorithm._28147_CNT_IMIT:
             case EncryptionAlgorithm.DES40_CBC:
             case EncryptionAlgorithm.DES_CBC:
             case EncryptionAlgorithm.IDEA_CBC:
-            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
             case EncryptionAlgorithm.MAGMA_CTR_OMAC:
             case EncryptionAlgorithm.RC2_CBC_40:
             case EncryptionAlgorithm.RC4_128:
@@ -273,6 +261,7 @@ public class JcaTlsCrypto
         case MACAlgorithm.hmac_sha256:
         case MACAlgorithm.hmac_sha384:
         case MACAlgorithm.hmac_sha512:
+        case MACAlgorithm.hmac_gost_2012_256:
             return createHMACForHash(TlsCryptoUtils.getHashForHMAC(macAlgorithm));
 
         default:
@@ -1300,6 +1289,63 @@ public class JcaTlsCrypto
         TlsHMAC serverMAC = createMAC(cryptoParams, macAlgorithm);
 
         return new TlsBlockCipher(cryptoParams, encrypt, decrypt, clientMAC, serverMAC, cipherKeySize);
+    }
+
+    protected TlsCipher createCipher_GOST(TlsCryptoParameters cryptoParams, String algorithm, int cipherKeySize,
+        int macAlgorithm) throws GeneralSecurityException, IOException
+    {
+        SecurityParameters securityParameters = cryptoParams.getSecurityParametersHandshake();
+        JceTlsSecretKey masterSecret = (JceTlsSecretKey) securityParameters.getMasterSecret();
+
+        // --- Ciphers
+
+        final int ivSize = 8;
+        String cipherName = algorithm + "/CTR_ACPKM/NoPadding";
+
+        // 1. Cipher writes
+
+        Cipher encryptCipher = helper.createCipher(cipherName);
+        byte[] encryptIv = new byte[ivSize];
+        JceTlsSecretKey encryptKey = masterSecret.generateKeyForTls(cryptoParams, true, true, encryptIv);
+
+        JceTlsGostBlockCipherImpl encrypt = new JceTlsGostBlockCipherImpl(this, encryptCipher, algorithm, cipherKeySize, true);
+        encrypt.setBaseKey(encryptKey);
+        encrypt.init(encryptIv, 0, encryptIv.length);
+
+        // 2. Cipher reads
+
+        Cipher decryptCipher = helper.createCipher(cipherName);
+        byte[] decryptIv = new byte[ivSize];
+        JceTlsSecretKey decryptKey = masterSecret.generateKeyForTls(cryptoParams, true, false, decryptIv);
+
+        JceTlsGostBlockCipherImpl decrypt = new JceTlsGostBlockCipherImpl(this, decryptCipher, algorithm, cipherKeySize, false);
+        decrypt.setBaseKey(decryptKey);
+        decrypt.init(decryptIv, 0, decryptIv.length);
+
+        // --- MACs
+
+        int cryptoHashAlgorithm = TlsCryptoUtils.getHashForHMAC(macAlgorithm);
+        String macName = "GR3413_2015_K_IMIT";
+
+        // 1. Client MAC
+
+        Mac clientMac = helper.createMac(macName);
+        JceTlsSecretKey clientMacKey = masterSecret.generateKeyForTls(cryptoParams, false, true, null);
+
+        JceTlsGostHMAC clientMAC = new JceTlsGostHMAC(this, cryptoHashAlgorithm, clientMac, macName);
+        clientMAC.setBaseKey(clientMacKey);
+
+        // 2. Server MAC
+
+        Mac serverMac = helper.createMac(macName);
+        JceTlsSecretKey serverMacKey = masterSecret.generateKeyForTls(cryptoParams, false, false, null);
+
+        JceTlsGostHMAC serverMAC = new JceTlsGostHMAC(this, cryptoHashAlgorithm, serverMac, macName);
+        serverMAC.setBaseKey(serverMacKey);
+
+        // ---
+
+        return new TlsGostBlockCipher(cryptoParams, encrypt, decrypt, clientMAC, serverMAC, cipherKeySize);
     }
 
     private TlsAEADCipher createCipher_SM4_CCM(TlsCryptoParameters cryptoParams)

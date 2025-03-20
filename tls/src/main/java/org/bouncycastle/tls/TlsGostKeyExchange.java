@@ -6,7 +6,6 @@ import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.AlgorithmParameters;
 
 /**
  * (D)TLS GOST key exchange.

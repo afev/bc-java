@@ -1630,12 +1630,50 @@ public class TlsUtils
         return copy;
     }
 
-    static byte[] concat(byte[] a, byte[] b)
+    public static byte[] concat(byte[] a, byte[] b)
     {
         byte[] c = new byte[a.length + b.length];
         System.arraycopy(a, 0, c, 0, a.length);
         System.arraycopy(b, 0, c, a.length, b.length);
         return c;
+    }
+
+    public static byte[] longToByteArray(long data)
+    {
+        byte[] res = new byte[8];
+        res[7] = (byte) (data >> 56 & 0xff);
+        res[6] = (byte) (data >> 48 & 0xff);
+        res[5] = (byte) (data >> 40 & 0xff);
+        res[4] = (byte) (data >> 32 & 0xff);
+        res[3] = (byte) (data >> 24 & 0xff);
+        res[2] = (byte) (data >> 16 & 0xff);
+        res[1] = (byte) (data >> 8 & 0xff);
+        res[0] = (byte) (data & 0xff);
+        return res;
+    }
+
+    /**
+     * Increase the sequence number in the block array.
+     * it is a 64-bit number stored in big-endian format.
+     *
+     * @param block Block.
+     * @param limit Limit.
+     */
+    public static void increaseBlockByOne(byte[] block, int limit)
+    {
+        int k = limit;
+        while ((k >= 0) && (++block[k] == 0))
+        {
+            k--;
+        }
+    }
+
+    public static void syncLog(String message)
+    {
+        synchronized (System.out)
+        {
+            System.out.println(message);
+        }
     }
 
     static byte[] calculateEndPointHash(TlsContext context, TlsCertificate certificate, byte[] enc) throws IOException

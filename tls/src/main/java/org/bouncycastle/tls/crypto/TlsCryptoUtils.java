@@ -55,6 +55,8 @@ public abstract class TlsCryptoUtils
             return CryptoHashAlgorithm.sha384;
         case MACAlgorithm.hmac_sha512:
             return CryptoHashAlgorithm.sha512;
+        case MACAlgorithm.hmac_gost_2012_256:
+            return CryptoHashAlgorithm.gostr3411_2012_256;
         default:
             throw new IllegalArgumentException("specified MACAlgorithm not an HMAC: " + MACAlgorithm.getText(macAlgorithm));
         }

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public abstract class AbstractTlsSecretKey extends AbstractTlsSecret {
 
-    private final SecretKey secretKey;
+    protected final SecretKey secretKey;
 
     /**
      * Base constructor.
