@@ -60,13 +60,16 @@ public class JceTlsSecretKey
     @Override
     public synchronized TlsSecret deriveUsingPRF(int prfAlgorithm, String label, byte[] seed, int length)
     {
-        switch (label) {
-            case ExporterLabel.key_expansion: {
+        switch (label)
+        {
+            case ExporterLabel.key_expansion:
+            {
                 // If call is from TlsImplUtils#calculateKeyBlock do nothing: keys are already created earlier in generateKeyForTls().
                 return new JceTlsSecret(crypto, new byte[length]);
             }
             case ExporterLabel.client_finished:
-            case ExporterLabel.server_finished: {
+            case ExporterLabel.server_finished:
+            {
                 // If call is from TlsUtils#calculateVerifyData calculate finished message.
                 try
                 {
@@ -80,18 +83,24 @@ public class JceTlsSecretKey
                     throw new RuntimeException(e);
                 }
             }
-            default: {
-                // Creating a master secret.
+            case ExporterLabel.master_secret:
+            case ExporterLabel.extended_master_secret:
+            {
                 try
                 {
+                    boolean isEms = label.equalsIgnoreCase(ExporterLabel.extended_master_secret);
                     String algorithm = "GOST3412_2015_K";
                     SecretKeyFactory secretKeyFactory = crypto.getHelper().createSecretKeyFactory(algorithm + "_MASTER_KEY");
-                    secretKeyFactory.generateSecret(new SecretKeySpec(seed, "SEED")); // 1: pass the seed
-                    SecretKey masterSecret = secretKeyFactory.translateKey(secretKey); // 2: create a master-secret from the pre-master-secret
+                    secretKeyFactory.generateSecret(new SecretKeySpec(seed, isEms ? "HASH" : "SEED")); // 1: pass the hash (means EMS) or seed
+                    SecretKey masterSecret = secretKeyFactory.translateKey(secretKey); // 2: create an extended-master-secret from the pre-master-secret
                     return new JceTlsSecretKey(crypto, masterSecret);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
+            }
+            default:
+            {
+                throw new RuntimeException("Invalid label " + label);
             }
         }
     }
