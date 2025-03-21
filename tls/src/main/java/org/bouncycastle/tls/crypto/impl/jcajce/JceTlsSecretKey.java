@@ -13,6 +13,9 @@ import org.bouncycastle.util.Strings;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 public class JceTlsSecretKey
     extends AbstractTlsSecretKey {
@@ -24,6 +27,23 @@ public class JceTlsSecretKey
         super(key);
 
         this.crypto = crypto;
+    }
+
+    public JceTlsSecretKey(JceTlsSecretKey src)
+    {
+        super(copy(src));
+
+        this.crypto = src.crypto;
+    }
+
+    private static SecretKey copy(JceTlsSecretKey src)
+    {
+        try {
+            SecretKeyFactory secretKeyFactory = src.crypto.getHelper().createSecretKeyFactory("MASTER_DUPLICATE_KEY");
+            return secretKeyFactory.translateKey(src.getSecretKey());
+        } catch (NoSuchAlgorithmException|NoSuchProviderException|InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

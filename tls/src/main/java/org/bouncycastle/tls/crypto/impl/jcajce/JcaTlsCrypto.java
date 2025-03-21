@@ -105,7 +105,7 @@ public class JcaTlsCrypto
     {
         if (secret instanceof JceTlsSecretKey)
         {
-            return secret;
+            return new JceTlsSecretKey((JceTlsSecretKey) secret); // duplicate key
         }
         else {
             return super.adoptSecret(secret);
