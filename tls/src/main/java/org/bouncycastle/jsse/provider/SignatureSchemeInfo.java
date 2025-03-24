@@ -89,7 +89,7 @@ class SignatureSchemeInfo
         dsa_sha1(historical_dsa_sha1, "dsa_sha1", "SHA1withDSA", "DSA"),
         rsa_md5(historical_rsa_md5, "rsa_md5", "MD5withRSA", "RSA"),
 
-        gost_2012_256(SignatureScheme.gostr34102012_256, "GOST3411-2012-256WITHECGOST3410-2012-256", "GOST3411-2012-256");
+        gost_2012_256(SignatureScheme.gostr34102012_256, "GOST3411-2012-256WITHECGOST3410-2012-256", "ECGOST3410-2012");
 
         private final int signatureScheme;
         private final String name;

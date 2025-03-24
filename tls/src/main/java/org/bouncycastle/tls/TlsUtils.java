@@ -1668,6 +1668,16 @@ public class TlsUtils
         }
     }
 
+    public static byte[] inverse(byte[] data)
+    {
+        byte[] inverted = new byte[data.length];
+        for (int i = 0; i < data.length; i++)
+        {
+            inverted[i] = data[data.length - 1 - i];
+        }
+        return inverted;
+    }
+
     public static void syncLog(String message)
     {
         synchronized (System.out)

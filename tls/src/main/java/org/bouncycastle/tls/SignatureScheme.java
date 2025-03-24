@@ -100,6 +100,8 @@ public class SignatureScheme
             return CryptoHashAlgorithm.sha512;
         case sm2sig_sm3:
             return CryptoHashAlgorithm.sm3;
+        case gostr34102012_256:
+            return CryptoHashAlgorithm.gostr3411_2012_256;
         default:
         {
             short hashAlgorithm = getHashAlgorithm(signatureScheme);
