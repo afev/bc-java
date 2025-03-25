@@ -89,7 +89,13 @@ public class DefaultTlsKeyExchangeFactory
     {
         return new TlsSRPKeyExchange(keyExchange, loginParameters);
     }
+
     public TlsKeyExchange createGOSTKeyExchangeClient(int keyExchange) throws IOException
+    {
+        return new TlsGostKeyExchange(keyExchange);
+    }
+
+    public TlsKeyExchange createGOSTKeyExchangeServer(int keyExchange) throws IOException
     {
         return new TlsGostKeyExchange(keyExchange);
     }

@@ -25,16 +25,10 @@ public class TlsGostBlockCipher implements TlsCipher {
         this.encryptCipher = encryptCipher;
         this.decryptCipher = decryptCipher;
 
-        if (cryptoParams.isServer())
-        {
-            this.writeMac = new TlsSuiteHMac(cryptoParams, serverMac);
-            this.readMac = new TlsSuiteHMac(cryptoParams, clientMac);
-        }
-        else
-        {
-            this.writeMac = new TlsSuiteHMac(cryptoParams, clientMac);
-            this.readMac = new TlsSuiteHMac(cryptoParams, serverMac);
-        }
+        // Not dependent on client/server side, read/write mark has been passed in JceTlsSecretKey#generateKeyForTls.
+        this.writeMac = new TlsSuiteHMac(cryptoParams, clientMac);
+        this.readMac = new TlsSuiteHMac(cryptoParams, serverMac);
+
     }
 
     @Override
@@ -109,9 +103,8 @@ public class TlsGostBlockCipher implements TlsCipher {
     {
 
         int macSize = readMac.getSize();
-        int minLen = Math.max(0, macSize + 1);
 
-        if (len < minLen)
+        if (len < macSize)
         {
             throw new TlsFatalAlert(AlertDescription.decode_error);
         }

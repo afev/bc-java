@@ -64,6 +64,7 @@ import org.bouncycastle.tls.crypto.impl.jcajce.JcaDefaultTlsCredentialedSigner;
 import org.bouncycastle.tls.crypto.impl.jcajce.JcaTlsCertificate;
 import org.bouncycastle.tls.crypto.impl.jcajce.JcaTlsCrypto;
 import org.bouncycastle.tls.crypto.impl.jcajce.JceDefaultTlsCredentialedDecryptor;
+import org.bouncycastle.tls.crypto.impl.jcajce.JceTlsGostCredentialedDecryptor;
 import org.bouncycastle.util.encoders.Hex;
 
 abstract class JsseUtils
@@ -234,6 +235,14 @@ abstract class JsseUtils
         return new JceDefaultTlsCredentialedDecryptor(crypto, certificate, privateKey);
     }
 
+    static TlsCredentialedDecryptor createCredentialedGostDecryptor(JcaTlsCrypto crypto, BCX509Key x509Key)
+    {
+        PrivateKey privateKey = x509Key.getPrivateKey();
+        Certificate certificate = getCertificateMessage(crypto, x509Key.getCertificateChain());
+
+        return new JceTlsGostCredentialedDecryptor(crypto, certificate, privateKey);
+    }
+
     static TlsCredentialedSigner createCredentialedSigner(TlsContext context, JcaTlsCrypto crypto, BCX509Key x509Key,
         SignatureAndHashAlgorithm sigAndHashAlg)
     {
@@ -369,7 +378,7 @@ abstract class JsseUtils
         case KeyExchangeAlgorithm.SRP_RSA:
             return "SRP_RSA";
         case KeyExchangeAlgorithm.GOSTR341112_256:
-            return "GR3410-2012-256";
+            return "ECGOST3410-2012";
         default:
             throw new IllegalArgumentException();
         }

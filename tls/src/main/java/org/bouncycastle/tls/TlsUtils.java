@@ -1437,6 +1437,9 @@ public class TlsUtils
         case KeyExchangeAlgorithm.SRP_RSA:
             return SignatureAlgorithm.rsa;
 
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return SignatureAlgorithm.gostr34102012_256;
+
         default:
             return -1;
         }
@@ -1628,6 +1631,13 @@ public class TlsUtils
         byte[] copy = new byte[newLength];
         System.arraycopy(original, from, copy, 0, newLength);
         return copy;
+    }
+
+    public static byte[] generateSV(TlsCrypto crypto, SecurityParameters securityParameters, int cryptoHashAlgorithm) {
+        byte[] seed = TlsUtils.concat(securityParameters.getClientRandom(), securityParameters.getServerRandom());
+        TlsHash hash = crypto.createHash(cryptoHashAlgorithm);
+        hash.update(seed, 0, seed.length);
+        return hash.calculateHash();
     }
 
     public static byte[] concat(byte[] a, byte[] b)
@@ -4208,6 +4218,8 @@ public class TlsUtils
             return SignatureAlgorithm.anonymous != signatureAlgorithm;
 
         case KeyExchangeAlgorithm.GOSTR341112_256:
+            return true;
+
         default:
             return false;
         }
@@ -4630,6 +4642,9 @@ public class TlsUtils
         case KeyExchangeAlgorithm.SRP_DSS:
         case KeyExchangeAlgorithm.SRP_RSA:
             return factory.createSRPKeyExchangeServer(keyExchange, server.getSRPLoginParameters());
+
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return factory.createGOSTKeyExchangeServer(keyExchange);
 
         default:
             /*

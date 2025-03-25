@@ -27,7 +27,7 @@ public class TlsGostKeyExchange
     protected TlsEncryptor encryptor;
     protected TlsSecret preMasterSecret;
 
-    protected TlsCredentialedSigner serverCredentials = null;
+    protected TlsCredentialedDecryptor serverCredentials = null;
     protected Certificate serverCertificate = null;
 
     public TlsGostKeyExchange(int keyExchange)
@@ -42,7 +42,8 @@ public class TlsGostKeyExchange
 
     public void processServerCredentials(TlsCredentials serverCredentials) throws IOException
     {
-        this.serverCredentials = TlsUtils.requireSignerCredentials(serverCredentials);
+        this.serverCredentials = TlsUtils.requireDecryptorCredentials(serverCredentials);
+        this.serverCertificate = this.serverCredentials.getCertificate();
     }
 
     public void processServerCertificate(Certificate serverCertificate) throws IOException
@@ -62,7 +63,7 @@ public class TlsGostKeyExchange
 
     public void generateClientKeyExchange(OutputStream output) throws IOException
     {
-        byte[] sv = generateSV();
+        byte[] sv = TlsUtils.generateSV(context.getCrypto(), context.getSecurityParametersHandshake(), CryptoHashAlgorithm.gostr3411_2012_256);
         TlsCertificate tlsCertificate = serverCertificate.getCertificateAt(0);
         this.encryptor = tlsCertificate.createEncryptor(TlsCertificateRole.GOST_ENCRYPTION, keyExchange, new IvParameterSpec(sv));
         // Exports key as GostR3410_GostR3412_KeyTransport.
@@ -71,8 +72,9 @@ public class TlsGostKeyExchange
 
     public void processClientKeyExchange(InputStream input) throws IOException
     {
-        // todo
-        System.out.println("processClientKeyExchange not implemented.");
+        // ASN.1 encoded data, opaque is not needed.
+        byte[] encryptedPreMasterSecret = SSL3Utils.readEncryptedPMS(input);
+        this.preMasterSecret = serverCredentials.decrypt(new TlsCryptoParameters(context), encryptedPreMasterSecret);
     }
 
     public TlsSecret generatePreMasterSecret() throws IOException
@@ -80,14 +82,6 @@ public class TlsGostKeyExchange
         TlsSecret tmp = this.preMasterSecret;
         this.preMasterSecret = null;
         return tmp;
-    }
-
-    private byte[] generateSV() {
-        SecurityParameters sp = context.getSecurityParametersHandshake();
-        byte[] seed = TlsUtils.concat(sp.getClientRandom(), sp.getServerRandom());
-        TlsHash hash = context.getCrypto().createHash(CryptoHashAlgorithm.gostr3411_2012_256);
-        hash.update(seed, 0, seed.length);
-        return hash.calculateHash();
     }
 
 }

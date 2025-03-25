@@ -47,4 +47,6 @@ public interface TlsKeyExchangeFactory
 
     TlsKeyExchange createGOSTKeyExchangeClient(int keyExchange) throws IOException;
 
+    TlsKeyExchange createGOSTKeyExchangeServer(int keyExchange) throws IOException;
+
 }
