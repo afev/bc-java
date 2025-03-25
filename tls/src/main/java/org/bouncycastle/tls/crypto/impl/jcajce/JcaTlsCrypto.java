@@ -841,6 +841,11 @@ public class JcaTlsCrypto
         }
     }
 
+    @Override
+    public short[] getCertificateTypes() {
+        return new short[] {ClientCertificateType.gost_sign256};
+    }
+
     public TlsHash createHash(int cryptoHashAlgorithm)
     {
         try

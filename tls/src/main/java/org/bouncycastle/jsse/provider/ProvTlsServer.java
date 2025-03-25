@@ -515,8 +515,7 @@ class ProvTlsServer
         }
 
         // TODO[jsse] These should really be based on TlsCrypto support
-        short[] certificateTypes = new short[]{ ClientCertificateType.ecdsa_sign,
-            ClientCertificateType.rsa_sign, ClientCertificateType.dss_sign };
+        short[] certificateTypes = getCrypto().getCertificateTypes();
 
         return new CertificateRequest(certificateTypes, serverSigAlgs, certificateAuthorities);
     }

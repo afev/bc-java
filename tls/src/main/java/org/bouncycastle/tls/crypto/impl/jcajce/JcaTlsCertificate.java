@@ -202,9 +202,12 @@ public class JcaTlsCertificate
         }
 
         // TODO[RFC 9189]
-        case SignatureAlgorithm.gostr34102012_256:
-        case SignatureAlgorithm.gostr34102012_512:
+        case SignatureAlgorithm.gostr34102012_256: {
+            int signatureScheme = SignatureScheme.from(HashAlgorithm.Intrinsic, signatureAlgorithm);
+            return new JcaTlsGOSTVerifier(crypto, getPublicKey(), signatureScheme, "NoneWITHECGOST3410-2012-256");
+        }
 
+        case SignatureAlgorithm.gostr34102012_512:
         default:
             throw new TlsFatalAlert(AlertDescription.internal_error);
         }

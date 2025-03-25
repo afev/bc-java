@@ -53,7 +53,7 @@ public class TlsGostKeyExchange
 
     public short[] getClientCertificateTypes()
     {
-        return new short[]{ ClientCertificateType.gost_sign256 };
+        return context.getCrypto().getCertificateTypes();
     }
 
     public void processClientCredentials(TlsCredentials clientCredentials) throws IOException
