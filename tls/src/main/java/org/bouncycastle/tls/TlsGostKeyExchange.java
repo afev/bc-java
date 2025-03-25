@@ -15,7 +15,6 @@ public class TlsGostKeyExchange
 {
     private static int checkKeyExchange(int keyExchange)
     {
-        System.out.println("checkKeyExchange not implemented.");
         switch (keyExchange)
         {
             case KeyExchangeAlgorithm.GOSTR341112_256:
@@ -36,20 +35,17 @@ public class TlsGostKeyExchange
         super(checkKeyExchange(keyExchange));
     }
 
-    public void skipServerCredentials()
-        throws IOException
+    public void skipServerCredentials() throws IOException
     {
         throw new TlsFatalAlert(AlertDescription.internal_error);
     }
 
-    public void processServerCredentials(TlsCredentials serverCredentials)
-        throws IOException
+    public void processServerCredentials(TlsCredentials serverCredentials) throws IOException
     {
         this.serverCredentials = TlsUtils.requireSignerCredentials(serverCredentials);
     }
 
-    public void processServerCertificate(Certificate serverCertificate)
-        throws IOException
+    public void processServerCertificate(Certificate serverCertificate) throws IOException
     {
         this.serverCertificate = serverCertificate;
     }
@@ -59,14 +55,12 @@ public class TlsGostKeyExchange
         return new short[]{ ClientCertificateType.gost_sign256 };
     }
 
-    public void processClientCredentials(TlsCredentials clientCredentials)
-        throws IOException
+    public void processClientCredentials(TlsCredentials clientCredentials) throws IOException
     {
-        System.out.println("processClientCredentials not implemented.");
+        TlsUtils.requireSignerCredentials(clientCredentials);
     }
 
-    public void generateClientKeyExchange(OutputStream output)
-        throws IOException
+    public void generateClientKeyExchange(OutputStream output) throws IOException
     {
         byte[] sv = generateSV();
         TlsCertificate tlsCertificate = serverCertificate.getCertificateAt(0);
@@ -75,14 +69,13 @@ public class TlsGostKeyExchange
         this.preMasterSecret = TlsUtils.generateEncryptedGOSTPreMasterSecret(context, encryptor, output);
     }
 
-    public void processClientKeyExchange(InputStream input)
-        throws IOException
+    public void processClientKeyExchange(InputStream input) throws IOException
     {
+        // todo
         System.out.println("processClientKeyExchange not implemented.");
     }
 
-    public TlsSecret generatePreMasterSecret()
-        throws IOException
+    public TlsSecret generatePreMasterSecret() throws IOException
     {
         TlsSecret tmp = this.preMasterSecret;
         this.preMasterSecret = null;

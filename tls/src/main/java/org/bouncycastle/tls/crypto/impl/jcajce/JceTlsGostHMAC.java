@@ -45,8 +45,17 @@ public class JceTlsGostHMAC extends JceTlsHMAC {
         buffer = new ByteArrayOutputStream();
     }
 
+    private void checkSequenceNumberLimit(long seqNo) throws GeneralSecurityException
+    {
+        if (seqNo >= 0x00001fffffffffffL)
+        {
+            throw new GeneralSecurityException("Sequence number extremely close to overflow (2^44-1 packets).");
+        }
+    }
+
     private void reKeying(long seqNo) throws GeneralSecurityException
     {
+        checkSequenceNumberLimit(seqNo);
         try
         {
             String algorithm = "GOST3412_2015_K";
