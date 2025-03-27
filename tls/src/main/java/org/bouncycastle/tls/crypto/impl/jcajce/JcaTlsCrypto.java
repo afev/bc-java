@@ -745,6 +745,9 @@ public class JcaTlsCrypto
         // TODO[RFC 9189]
         case SignatureAlgorithm.gostr34102012_256:
         case SignatureAlgorithm.gostr34102012_512:
+
+        case SignatureAlgorithm.gostr34102001_priv:
+        case SignatureAlgorithm.gostr34102012_256_priv:
             return true;
 
         // TODO[RFC 8998]
@@ -845,7 +848,9 @@ public class JcaTlsCrypto
     @Override
     public short[] getCertificateTypes()
     {
-        return new short[] {ClientCertificateType.gost_sign256};
+        return new short[] {ClientCertificateType.ecdsa_sign,
+                ClientCertificateType.rsa_sign, ClientCertificateType.dss_sign,
+                ClientCertificateType.gost_sign256};
     }
 
     public TlsHash createHash(int cryptoHashAlgorithm)
@@ -1412,6 +1417,10 @@ public class JcaTlsCrypto
         case CryptoHashAlgorithm.sm3:
             return "SM3";
         case CryptoHashAlgorithm.gostr3411_2012_256:
+            return "GOST3411-2012-256";
+        case CryptoHashAlgorithm.gostr3411_94_priv:
+            return "GOST3411";
+        case CryptoHashAlgorithm.gostr3411_2012_256_priv:
             return "GOST3411-2012-256";
         default:
             throw new IllegalArgumentException("invalid CryptoHashAlgorithm: " + cryptoHashAlgorithm);
