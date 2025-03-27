@@ -64,7 +64,8 @@ public class JceTlsGostCredentialedDecryptor implements TlsCredentialedDecryptor
             cipher.init(Cipher.UNWRAP_MODE, privateKey, new IvParameterSpec(sv));
             SecretKey preMasterSecret = (SecretKey) cipher.unwrap(ciphertext, "MASTER_KEY", Cipher.SECRET_KEY);
             return new JceTlsSecretKey(crypto, preMasterSecret);
-        } catch (GeneralSecurityException e)
+        }
+        catch (GeneralSecurityException e)
         {
             throw new IOException(e);
         }

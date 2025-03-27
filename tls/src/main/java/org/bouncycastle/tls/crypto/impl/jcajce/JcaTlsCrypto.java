@@ -107,7 +107,8 @@ public class JcaTlsCrypto
         {
             return new JceTlsSecretKey((JceTlsSecretKey) secret); // duplicate key
         }
-        else {
+        else
+        {
             return super.adoptSecret(secret);
         }
     }
@@ -842,7 +843,8 @@ public class JcaTlsCrypto
     }
 
     @Override
-    public short[] getCertificateTypes() {
+    public short[] getCertificateTypes()
+    {
         return new short[] {ClientCertificateType.gost_sign256};
     }
 

@@ -12,7 +12,8 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
-public class JceTlsGostHMAC extends JceTlsHMAC {
+public class JceTlsGostHMAC extends JceTlsHMAC
+{
 
     protected final JcaTlsCrypto crypto;
     private JceTlsSecretKey baseKey;

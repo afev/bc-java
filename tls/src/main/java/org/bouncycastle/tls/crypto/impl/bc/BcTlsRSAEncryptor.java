@@ -52,7 +52,8 @@ final class BcTlsRSAEncryptor
     }
 
     @Override
-    public byte[] wrap(SecretKey secretKey) throws IOException {
+    public byte[] wrap(SecretKey secretKey) throws IOException
+    {
         byte[] input = secretKey.getEncoded();
         return encrypt(input, 0, input.length);
     }

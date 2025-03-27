@@ -1633,7 +1633,8 @@ public class TlsUtils
         return copy;
     }
 
-    public static byte[] generateSV(TlsCrypto crypto, SecurityParameters securityParameters, int cryptoHashAlgorithm) {
+    public static byte[] generateSV(TlsCrypto crypto, SecurityParameters securityParameters, int cryptoHashAlgorithm)
+    {
         byte[] seed = TlsUtils.concat(securityParameters.getClientRandom(), securityParameters.getServerRandom());
         TlsHash hash = crypto.createHash(cryptoHashAlgorithm);
         hash.update(seed, 0, seed.length);
@@ -1686,14 +1687,6 @@ public class TlsUtils
             inverted[i] = data[data.length - 1 - i];
         }
         return inverted;
-    }
-
-    public static void syncLog(String message)
-    {
-        synchronized (System.out)
-        {
-            System.out.println(message);
-        }
     }
 
     static byte[] calculateEndPointHash(TlsContext context, TlsCertificate certificate, byte[] enc) throws IOException

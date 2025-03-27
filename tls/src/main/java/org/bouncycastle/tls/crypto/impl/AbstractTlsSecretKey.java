@@ -5,7 +5,8 @@ import org.bouncycastle.tls.crypto.TlsEncryptor;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 
-public abstract class AbstractTlsSecretKey extends AbstractTlsSecret {
+public abstract class AbstractTlsSecretKey extends AbstractTlsSecret
+{
 
     protected final SecretKey secretKey;
 
@@ -14,7 +15,8 @@ public abstract class AbstractTlsSecretKey extends AbstractTlsSecret {
      *
      * @param secretKey the secret key.
      */
-    protected AbstractTlsSecretKey(SecretKey secretKey) {
+    protected AbstractTlsSecretKey(SecretKey secretKey)
+    {
         super(new byte[0]);
         this.secretKey = secretKey;
     }

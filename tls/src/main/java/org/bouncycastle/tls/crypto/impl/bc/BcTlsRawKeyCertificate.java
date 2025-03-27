@@ -100,7 +100,8 @@ public class BcTlsRawKeyCertificate
 
     @Override
     public TlsEncryptor createEncryptor(int tlsCertificateRole, int encryptionAlgorithm,
-        AlgorithmParameterSpec cipherParams) throws IOException {
+        AlgorithmParameterSpec cipherParams) throws IOException
+    {
         // TODO
         return null;
     }

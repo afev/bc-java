@@ -12,7 +12,8 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
-public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl {
+public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl
+{
 
     private JceTlsSecretKey baseKey;
     private byte[] cipherIv;
@@ -29,11 +30,13 @@ public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl {
     @Override
     public void init(byte[] iv, int ivOff, int ivLen)
     {
-        if (cipherIv != null) {
+        if (cipherIv != null)
+        {
             throw new IllegalStateException("IV is already set.");
         }
         byte[] tmpIv = TlsUtils.copyOfRangeExact(iv, ivOff, ivOff + ivLen);
-        if (tmpIv.length != 8) {
+        if (tmpIv.length != 8)
+        {
             throw new IllegalStateException("Invalid IV length: " + tmpIv.length);
         }
         cipherIv = tmpIv;

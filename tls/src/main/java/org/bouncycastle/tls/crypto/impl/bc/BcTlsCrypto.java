@@ -506,13 +506,15 @@ public class BcTlsCrypto
     }
 
     @Override
-    public TlsSecret generateGOSTPreMasterSecret() {
+    public TlsSecret generateGOSTPreMasterSecret()
+    {
         // TODO
         return null;
     }
 
     @Override
-    public short[] getCertificateTypes() {
+    public short[] getCertificateTypes()
+    {
         return new short[]{ ClientCertificateType.ecdsa_sign,
                 ClientCertificateType.rsa_sign, ClientCertificateType.dss_sign };
     }

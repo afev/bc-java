@@ -1196,7 +1196,8 @@ class ProvTlsServer
                 + JsseUtils.getPrivateKeyAlgorithm(x509Key.getPrivateKey()) + "'");
         }
 
-        if (KeyExchangeAlgorithm.GOSTR341112_256 == keyExchangeAlgorithm) {
+        if (KeyExchangeAlgorithm.GOSTR341112_256 == keyExchangeAlgorithm)
+        {
             return JsseUtils.createCredentialedGostDecryptor(getCrypto(), x509Key);
         }
 

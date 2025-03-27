@@ -8,7 +8,8 @@ import org.bouncycastle.tls.crypto.*;
 
 import java.io.IOException;
 
-public class TlsGostBlockCipher implements TlsCipher {
+public class TlsGostBlockCipher implements TlsCipher
+{
 
     private final TlsCryptoParameters cryptoParams;
     private final byte[] randomData;

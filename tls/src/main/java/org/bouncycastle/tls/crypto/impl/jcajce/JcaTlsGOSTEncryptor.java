@@ -12,7 +12,8 @@ import java.security.PublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 
 public final class JcaTlsGOSTEncryptor
-    implements TlsEncryptor {
+    implements TlsEncryptor
+{
 
     private final JcaTlsCrypto crypto;
     private final PublicKey pubKey;
@@ -28,12 +29,14 @@ public final class JcaTlsGOSTEncryptor
     }
 
     @Override
-    public byte[] encrypt(byte[] input, int inOff, int length) throws IOException {
+    public byte[] encrypt(byte[] input, int inOff, int length) throws IOException
+    {
         throw new IOException("Encrypt is unsupported.");
     }
 
     @Override
-    public byte[] wrap(SecretKey secretKey) throws IOException {
+    public byte[] wrap(SecretKey secretKey) throws IOException
+    {
         try
         {
             Cipher c = crypto.createGOSTEncryptionCipher(cipherName);

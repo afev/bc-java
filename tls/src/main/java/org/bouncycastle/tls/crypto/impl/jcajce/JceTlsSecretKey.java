@@ -18,7 +18,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 public class JceTlsSecretKey
-    extends AbstractTlsSecretKey {
+    extends AbstractTlsSecretKey
+{
 
     protected final JcaTlsCrypto crypto;
 
@@ -38,10 +39,13 @@ public class JceTlsSecretKey
 
     private static SecretKey copy(JceTlsSecretKey src)
     {
-        try {
+        try
+        {
             SecretKeyFactory secretKeyFactory = src.crypto.getHelper().createSecretKeyFactory("MASTER_DUPLICATE_KEY");
             return secretKeyFactory.translateKey(src.getSecretKey());
-        } catch (NoSuchAlgorithmException|NoSuchProviderException|InvalidKeyException e) {
+        }
+        catch (NoSuchAlgorithmException|NoSuchProviderException|InvalidKeyException e)
+        {
             throw new RuntimeException(e);
         }
     }
@@ -79,7 +83,9 @@ public class JceTlsSecretKey
                     secretKeyFactory.generateSecret(new SecretKeySpec(Strings.toByteArray(label), "LABEL")); // 2: pass the label
                     SecretKeySpec verifyDataSpec = (SecretKeySpec) secretKeyFactory.getKeySpec(secretKey, SecretKeySpec.class); // 3. require computing of verify data
                     return new JceTlsSecret(crypto, verifyDataSpec.getEncoded());
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     throw new RuntimeException(e);
                 }
             }
@@ -94,7 +100,9 @@ public class JceTlsSecretKey
                     secretKeyFactory.generateSecret(new SecretKeySpec(seed, isEms ? "HASH" : "SEED")); // 1: pass the hash (means EMS) or seed
                     SecretKey masterSecret = secretKeyFactory.translateKey(secretKey); // 2: create an extended-master-secret from the pre-master-secret
                     return new JceTlsSecretKey(crypto, masterSecret);
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     throw new RuntimeException(e);
                 }
             }
@@ -126,7 +134,9 @@ public class JceTlsSecretKey
                 System.arraycopy(ivSpec.getEncoded(), 0, iv, 0, ivSpec.getEncoded().length);
             }
             return new JceTlsSecretKey(crypto, generatedKey);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             throw new RuntimeException(e);
         }
     }

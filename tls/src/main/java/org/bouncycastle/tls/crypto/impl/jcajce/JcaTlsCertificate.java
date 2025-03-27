@@ -142,7 +142,8 @@ public class JcaTlsCertificate
             case TlsCertificateRole.GOST_ENCRYPTION:
             {
                 this.pubKeyGOST = getPublicKey();
-                switch (encryptionAlgorithm) {
+                switch (encryptionAlgorithm)
+                {
                     case KeyExchangeAlgorithm.GOSTR341112_256:
                     {
                         return new JcaTlsGOSTEncryptor(crypto, pubKeyGOST, "GostTransportK", cipherParams); // export on ephemeral key
@@ -202,7 +203,8 @@ public class JcaTlsCertificate
         }
 
         // TODO[RFC 9189]
-        case SignatureAlgorithm.gostr34102012_256: {
+        case SignatureAlgorithm.gostr34102012_256:
+        {
             int signatureScheme = SignatureScheme.from(HashAlgorithm.Intrinsic, signatureAlgorithm);
             return new JcaTlsGOSTVerifier(crypto, getPublicKey(), signatureScheme, "NoneWITHECGOST3410-2012-256");
         }
