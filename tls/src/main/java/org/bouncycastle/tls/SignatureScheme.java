@@ -107,10 +107,10 @@ public class SignatureScheme
             return CryptoHashAlgorithm.sm3;
         case gostr34102012_256:
             return CryptoHashAlgorithm.gostr3411_2012_256;
-        case gostr34102001_priv:
-            return CryptoHashAlgorithm.gostr3411_94_priv;
-        case gostr34102012_256_priv:
-            return CryptoHashAlgorithm.gostr3411_2012_256_priv;
+        // case gostr34102001_priv:
+        //     return CryptoHashAlgorithm.gostr3411_94_priv;
+        // case gostr34102012_256_priv:
+        //     return CryptoHashAlgorithm.gostr3411_2012_256_priv;
         default:
         {
             short hashAlgorithm = getHashAlgorithm(signatureScheme);
@@ -180,10 +180,10 @@ public class SignatureScheme
             return "DRAFT_mldsa87";
         case gostr34102012_256:
             return "gostr34102012_256";
-        case gostr34102001_priv:
-            return "gostr34102001_priv";
-        case gostr34102012_256_priv:
-            return "gostr34102012_256_priv";
+        // case gostr34102001_priv:
+        //     return "gostr34102001_priv";
+        // case gostr34102012_256_priv:
+        //     return "gostr34102012_256_priv";
         default:
             return "UNKNOWN";
         }

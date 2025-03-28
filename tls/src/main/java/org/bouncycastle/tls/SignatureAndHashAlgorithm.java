@@ -35,10 +35,10 @@ public class SignatureAndHashAlgorithm
             create(HashAlgorithm.Intrinsic, SignatureAlgorithm.gostr34102012_256);
     public static final SignatureAndHashAlgorithm gostr34102012_512 =
             create(HashAlgorithm.Intrinsic, SignatureAlgorithm.gostr34102012_512);
-    public static final SignatureAndHashAlgorithm gostr34102001_priv =
-            create(HashAlgorithm.gostr3411_94_priv, SignatureAlgorithm.gostr34102001_priv);
-    public static final SignatureAndHashAlgorithm gostr34102012_256_priv =
-            create(HashAlgorithm.gostr3411_2012_256_priv, SignatureAlgorithm.gostr34102012_256_priv);
+    // public static final SignatureAndHashAlgorithm gostr34102001_priv =
+    //         create(HashAlgorithm.gostr3411_94_priv, SignatureAlgorithm.gostr34102001_priv);
+    // public static final SignatureAndHashAlgorithm gostr34102012_256_priv =
+    //         create(HashAlgorithm.gostr3411_2012_256_priv, SignatureAlgorithm.gostr34102012_256_priv);
     // public static final SignatureAndHashAlgorithm gostr34102012_512_priv =
     //         create(HashAlgorithm.gostr3411_2012_512_priv, SignatureAlgorithm.gostr34102012_512_priv);
 
@@ -65,10 +65,10 @@ public class SignatureAndHashAlgorithm
             return gostr34102012_256;
         case SignatureAlgorithm.gostr34102012_512:
             return gostr34102012_512;
-        case SignatureAlgorithm.gostr34102001_priv:
-            return gostr34102001_priv;
-        case SignatureAlgorithm.gostr34102012_256_priv:
-            return gostr34102012_256_priv;
+        // case SignatureAlgorithm.gostr34102001_priv:
+        //     return gostr34102001_priv;
+        // case SignatureAlgorithm.gostr34102012_256_priv:
+        //     return gostr34102012_256_priv;
         case SignatureAlgorithm.rsa_pss_rsae_sha256:
             return rsa_pss_rsae_sha256;
         case SignatureAlgorithm.rsa_pss_rsae_sha384:

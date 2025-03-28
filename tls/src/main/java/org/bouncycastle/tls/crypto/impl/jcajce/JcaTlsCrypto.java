@@ -1418,10 +1418,10 @@ public class JcaTlsCrypto
             return "SM3";
         case CryptoHashAlgorithm.gostr3411_2012_256:
             return "GOST3411-2012-256";
-        case CryptoHashAlgorithm.gostr3411_94_priv:
-            return "GOST3411";
-        case CryptoHashAlgorithm.gostr3411_2012_256_priv:
-            return "GOST3411-2012-256";
+        // case CryptoHashAlgorithm.gostr3411_94_priv:
+        //     return "GOST3411";
+        // case CryptoHashAlgorithm.gostr3411_2012_256_priv:
+        //     return "GOST3411-2012-256";
         default:
             throw new IllegalArgumentException("invalid CryptoHashAlgorithm: " + cryptoHashAlgorithm);
         }

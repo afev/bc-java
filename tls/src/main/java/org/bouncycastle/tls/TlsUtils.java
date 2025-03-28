@@ -120,8 +120,8 @@ public class TlsUtils
             SignatureAndHashAlgorithm.gostr34102012_256);
         addCertSigAlgOID(h, RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512,
             SignatureAndHashAlgorithm.gostr34102012_512);
-        addCertSigAlgOID(h, CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_2001,
-            SignatureAndHashAlgorithm.gostr34102001_priv);
+        // addCertSigAlgOID(h, CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_2001,
+        //     SignatureAndHashAlgorithm.gostr34102001_priv);
 
         // TODO[RFC 8998]
 //        addCertSigAlgOID(h, GMObjectIdentifiers.sm2sign_with_sm3, HashAlgorithm.sm3, SignatureAlgorithm.sm2);

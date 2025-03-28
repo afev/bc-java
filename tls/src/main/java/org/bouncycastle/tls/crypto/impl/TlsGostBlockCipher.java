@@ -26,7 +26,7 @@ public class TlsGostBlockCipher implements TlsCipher
         this.encryptCipher = encryptCipher;
         this.decryptCipher = decryptCipher;
 
-        // Not dependent on client/server side, read/write mark has been passed in JceTlsSecretKey#generateKeyForTls.
+        // Mac does not depend on client/server side now, read/write tag has been passed in JceTlsSecretKey#generateKeyForTls.
         this.writeMac = new TlsSuiteHMac(cryptoParams, clientMac);
         this.readMac = new TlsSuiteHMac(cryptoParams, serverMac);
 

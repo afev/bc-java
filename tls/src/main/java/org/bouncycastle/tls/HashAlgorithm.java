@@ -18,9 +18,9 @@ public class HashAlgorithm
      */
     public static final short Intrinsic = 8;
 
-    public static final short gostr3411_94_priv = 0xed;
-    public static final short gostr3411_2012_256_priv = 0xee;
-    public static final short gostr3411_2012_512_priv = 0xef;
+    // public static final short gostr3411_94_priv = 0xed;
+    // public static final short gostr3411_2012_256_priv = 0xee;
+    // public static final short gostr3411_2012_512_priv = 0xef;
 
     public static String getName(short hashAlgorithm)
     {
