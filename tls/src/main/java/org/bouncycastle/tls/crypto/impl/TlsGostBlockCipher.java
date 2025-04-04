@@ -10,7 +10,6 @@ import java.io.IOException;
 
 public class TlsGostBlockCipher implements TlsCipher
 {
-
     private final TlsCryptoParameters cryptoParams;
     private final byte[] randomData;
     private final TlsBlockCipherImpl decryptCipher, encryptCipher;
@@ -68,6 +67,13 @@ public class TlsGostBlockCipher implements TlsCipher
     public TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion,
         int headerAllocation, byte[] plaintext, int offset, int len) throws IOException
     {
+        return encodePlaintext(seqNo, seqNo, contentType, recordVersion, headerAllocation, plaintext, offset, len);
+    }
+
+    @Override
+    public TlsEncodeResult encodePlaintext(long macSeqNo, long seqNo, short contentType, ProtocolVersion recordVersion,
+        int headerAllocation, byte[] plaintext, int offset, int len) throws IOException
+    {
 
         int macSize = writeMac.getSize();
 
@@ -84,7 +90,7 @@ public class TlsGostBlockCipher implements TlsCipher
 
         short recordType = contentType;
 
-        byte[] mac = writeMac.calculateMac(seqNo, recordType, null, outBuf, innerPlaintextOffset, innerPlaintextLength);
+        byte[] mac = writeMac.calculateMac(macSeqNo, seqNo, recordType, null, outBuf, innerPlaintextOffset, innerPlaintextLength);
         System.arraycopy(mac, 0, outBuf, outOff, mac.length);
         outOff += mac.length;
 
@@ -102,6 +108,13 @@ public class TlsGostBlockCipher implements TlsCipher
     public TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion,
         byte[] ciphertext, int offset, int len) throws IOException
     {
+        return decodeCiphertext(seqNo, seqNo, recordType, recordVersion, ciphertext, offset, len);
+    }
+
+    @Override
+    public TlsDecodeResult decodeCiphertext(long macSeqNo, long seqNo, short recordType, ProtocolVersion recordVersion,
+        byte[] ciphertext, int offset, int len) throws IOException
+    {
 
         int macSize = readMac.getSize();
 
@@ -115,7 +128,7 @@ public class TlsGostBlockCipher implements TlsCipher
         int innerPlaintextLength = len;
         innerPlaintextLength -= macSize;
 
-        byte[] expectedMac = readMac.calculateMacConstantTime(seqNo, recordType, null, ciphertext, offset, innerPlaintextLength, len - macSize, randomData);
+        byte[] expectedMac = readMac.calculateMacConstantTime(macSeqNo, seqNo, recordType, null, ciphertext, offset, innerPlaintextLength, len - macSize, randomData);
         boolean badMac = !TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext, offset + innerPlaintextLength);
 
         if (badMac)

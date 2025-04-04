@@ -170,6 +170,10 @@ public class TlsTestUtils
         {
             return getCACertResource(SignatureAlgorithm.rsa_pss_pss_sha512);
         }
+        if ("gost".equalsIgnoreCase(eeCertResource))
+        {
+            return getCACertResource(SignatureAlgorithm.gostr34102012_256);
+        }
 
         throw new TlsFatalAlert(AlertDescription.internal_error);
     }
@@ -200,6 +204,8 @@ public class TlsTestUtils
 
         // TODO[RFC 9189] Choose names here and apply reverse mappings in getCACertResource(String)
         case SignatureAlgorithm.gostr34102012_256:
+            return "gost";
+
         case SignatureAlgorithm.gostr34102012_512:
 
         default:

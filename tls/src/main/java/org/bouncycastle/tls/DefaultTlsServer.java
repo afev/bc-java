@@ -58,6 +58,12 @@ public abstract class DefaultTlsServer
         throw new TlsFatalAlert(AlertDescription.internal_error);
     }
 
+    protected TlsCredentialedDecryptor getGOSTEncryptionCredentials()
+        throws IOException
+    {
+        throw new TlsFatalAlert(AlertDescription.internal_error);
+    }
+
     protected TlsCredentialedSigner getRSASignerCredentials()
         throws IOException
     {
@@ -92,6 +98,9 @@ public abstract class DefaultTlsServer
 
         case KeyExchangeAlgorithm.RSA:
             return getRSAEncryptionCredentials();
+
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return getGOSTEncryptionCredentials();
 
         default:
             /* Note: internal error here; selected a key exchange we don't implement! */

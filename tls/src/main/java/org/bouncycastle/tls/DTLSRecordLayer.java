@@ -650,7 +650,7 @@ class DTLSRecordLayer
         TlsDecodeResult decoded;
         try
         {
-            decoded = recordEpoch.getCipher().decodeCiphertext(macSeqNo, recordType, recordVersion, record,
+            decoded = recordEpoch.getCipher().decodeCiphertext(macSeqNo, seq, recordType, recordVersion, record,
                 recordHeaderLength, length);
         }
         catch (TlsFatalAlert fatalAlert)
@@ -1008,7 +1008,7 @@ class DTLSRecordLayer
 
             int recordHeaderLength = writeEpoch.getRecordHeaderLengthWrite();
 
-            TlsEncodeResult encoded = writeEpoch.getCipher().encodePlaintext(macSequenceNumber, contentType,
+            TlsEncodeResult encoded = writeEpoch.getCipher().encodePlaintext(macSequenceNumber, recordSequenceNumber, contentType,
                 recordVersion, recordHeaderLength, buf, off, len);
 
             int ciphertextLength = encoded.len - recordHeaderLength;

@@ -155,6 +155,7 @@ public class TlsUtils
         result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.ecdsa));
         result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.rsa));
         result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.dsa));
+        result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.Intrinsic, SignatureAlgorithm.gostr34102012_256));
         return result;
     }
 
@@ -3159,8 +3160,10 @@ public class TlsUtils
         case EncryptionAlgorithm.SM4_CBC:
             return CipherType.block;
 
-        case EncryptionAlgorithm._28147_CNT_IMIT:
         case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+            return CipherType.block;
+
+        case EncryptionAlgorithm._28147_CNT_IMIT:
         case EncryptionAlgorithm.MAGMA_CTR_OMAC:
         case EncryptionAlgorithm.NULL:
         case EncryptionAlgorithm.RC4_40:

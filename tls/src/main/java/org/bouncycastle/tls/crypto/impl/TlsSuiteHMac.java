@@ -64,7 +64,13 @@ public final class TlsSuiteHMac
         return macSize;
     }
 
-    public byte[] calculateMac(long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff, int msgLen)
+    @Override
+    public byte[] calculateMac(long seqNo, short type, byte[] connectionID, byte[] message, int offset, int length)
+    {
+        return calculateMac(seqNo, seqNo, type, connectionID, message, offset, length);
+    }
+
+    public byte[] calculateMac(long macSeqNo, long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff, int msgLen)
     {
         ProtocolVersion serverVersion = cryptoParams.getServerVersion();
 
@@ -77,7 +83,7 @@ public final class TlsSuiteHMac
             TlsUtils.writeUint8(cidLength, macHeader, 9);
             TlsUtils.writeUint8(ContentType.tls12_cid, macHeader, 10);
             TlsUtils.writeVersion(serverVersion, macHeader, 11);
-            TlsUtils.writeUint64(seqNo, macHeader, 13);
+            TlsUtils.writeUint64(macSeqNo, macHeader, 13);
             System.arraycopy(connectionID, 0, macHeader, 21, cidLength);
             TlsUtils.writeUint16(msgLen, macHeader, 21 + cidLength);
 
@@ -86,7 +92,7 @@ public final class TlsSuiteHMac
         else
         {
             byte[] macHeader = new byte[13];
-            TlsUtils.writeUint64(seqNo, macHeader, 0);
+            TlsUtils.writeUint64(macSeqNo, macHeader, 0);
             TlsUtils.writeUint8(type, macHeader, 8);
             TlsUtils.writeVersion(serverVersion, macHeader, 9);
             TlsUtils.writeUint16(msgLen, macHeader, 11);
@@ -99,13 +105,20 @@ public final class TlsSuiteHMac
         return truncate(mac.calculateMAC(seqNo));
     }
 
-    public byte[] calculateMacConstantTime(long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff,
+    @Override
+    public byte[] calculateMacConstantTime(long seqNo, short type, byte[] connectionID, byte[] message,
+        int offset, int length, int expectedLength, byte[] randomData)
+    {
+        return calculateMacConstantTime(seqNo, seqNo, type, connectionID, message, offset, length, expectedLength, randomData);
+    }
+
+    public byte[] calculateMacConstantTime(long macSeqNo, long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff,
         int msgLen, int fullLength, byte[] dummyData)
     {
         /*
          * Actual MAC only calculated on 'length' bytes...
          */
-        byte[] result = calculateMac(seqNo, type, connectionID, msg, msgOff, msgLen);
+        byte[] result = calculateMac(macSeqNo, seqNo, type, connectionID, msg, msgOff, msgLen);
 
         /*
          * ...but ensure a constant number of complete digest blocks are processed (as many as would

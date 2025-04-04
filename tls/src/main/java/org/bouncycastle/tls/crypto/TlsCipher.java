@@ -63,6 +63,25 @@ public interface TlsCipher
         byte[] plaintext, int offset, int len) throws IOException;
 
     /**
+     * Encode the passed in plaintext using the current bulk cipher.
+     *
+     * @param seqNo sequence number of the message represented by plaintext.
+     * @param contentType content type of the message represented by plaintext.
+     * @param recordVersion {@link ProtocolVersion} used for the record.
+     * @param headerAllocation extra bytes to allocate at start of returned byte array.
+     * @param plaintext array holding input plaintext to the cipher.
+     * @param offset offset into input array the plaintext starts at.
+     * @param len length of the plaintext in the array.
+     * @return A {@link TlsEncodeResult} containing the result of encoding (after 'headerAllocation' unused bytes).
+     * @throws IOException
+     */
+    // TODO[api] Add a parameter for how much (D)TLSInnerPlaintext padding to add
+    default TlsEncodeResult encodePlaintext(long macSeqNo, long seqNo, short contentType, ProtocolVersion recordVersion, int headerAllocation,
+        byte[] plaintext, int offset, int len) throws IOException {
+        return encodePlaintext(macSeqNo, contentType, recordVersion, headerAllocation, plaintext, offset, len);
+    }
+
+    /**
      * Decode the passed in ciphertext using the current bulk cipher.
      *
      * @param seqNo sequence number of the message represented by ciphertext.
@@ -76,6 +95,23 @@ public interface TlsCipher
      */
     TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion, byte[] ciphertext,
         int offset, int len) throws IOException;
+
+    /**
+     * Decode the passed in ciphertext using the current bulk cipher.
+     *
+     * @param seqNo sequence number of the message represented by ciphertext.
+     * @param recordType content type used in the record for this message.
+     * @param recordVersion {@link ProtocolVersion} used for the record.
+     * @param ciphertext  array holding input ciphertext to the cipher.
+     * @param offset offset into input array the ciphertext starts at.
+     * @param len length of the ciphertext in the array.
+     * @return A {@link TlsDecodeResult} containing the result of decoding.
+     * @throws IOException
+     */
+    default TlsDecodeResult decodeCiphertext(long macSeqNo, long seqNo, short recordType, ProtocolVersion recordVersion, byte[] ciphertext,
+        int offset, int len) throws IOException {
+        return decodeCiphertext(macSeqNo, recordType, recordVersion, ciphertext, offset, len);
+    }
 
     void rekeyDecoder() throws IOException;
 
