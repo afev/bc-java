@@ -34,7 +34,8 @@ public interface TlsSuiteMac
      * @param length The length of the message.
      * @return A new byte array containing the MAC value.
      */
-    default byte[] calculateMac(long macSeqNo, long seqNo, short type, byte[] connectionID, byte[] message, int offset, int length) {
+    default byte[] calculateMac(long macSeqNo, long seqNo, short type, byte[] connectionID, byte[] message, int offset, int length)
+    {
         return calculateMac(macSeqNo, type, connectionID, message, offset, length);
     }
 
@@ -66,7 +67,8 @@ public interface TlsSuiteMac
      * @return A new byte array containing the MAC value.
      */
     default byte[] calculateMacConstantTime(long macSeqNo, long seqNo, short type, byte[] connectionID, byte[] message, int offset,
-        int length, int expectedLength, byte[] randomData) {
+        int length, int expectedLength, byte[] randomData)
+    {
         return calculateMacConstantTime(macSeqNo, type, connectionID, message, offset, length, expectedLength, randomData);
     }
 

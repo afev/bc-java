@@ -77,7 +77,8 @@ public interface TlsCipher
      */
     // TODO[api] Add a parameter for how much (D)TLSInnerPlaintext padding to add
     default TlsEncodeResult encodePlaintext(long macSeqNo, long seqNo, short contentType, ProtocolVersion recordVersion, int headerAllocation,
-        byte[] plaintext, int offset, int len) throws IOException {
+        byte[] plaintext, int offset, int len) throws IOException
+    {
         return encodePlaintext(macSeqNo, contentType, recordVersion, headerAllocation, plaintext, offset, len);
     }
 
@@ -109,7 +110,8 @@ public interface TlsCipher
      * @throws IOException
      */
     default TlsDecodeResult decodeCiphertext(long macSeqNo, long seqNo, short recordType, ProtocolVersion recordVersion, byte[] ciphertext,
-        int offset, int len) throws IOException {
+        int offset, int len) throws IOException
+    {
         return decodeCiphertext(macSeqNo, recordType, recordVersion, ciphertext, offset, len);
     }
 
