@@ -1,6 +1,9 @@
 package org.bouncycastle.tls.crypto.impl.jcajce;
 
+import org.bouncycastle.tls.DTLSCounterData;
 import org.bouncycastle.tls.TlsUtils;
+import org.bouncycastle.tls.crypto.TlsCounterData;
+import org.bouncycastle.tls.crypto.impl.TlsGostCounter;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -14,7 +17,6 @@ import java.security.NoSuchProviderException;
 
 public class JceTlsGostHMAC extends JceTlsHMAC
 {
-
     protected final JcaTlsCrypto crypto;
     private JceTlsSecretKey baseKey;
     private long seqNo = 0;
@@ -46,17 +48,27 @@ public class JceTlsGostHMAC extends JceTlsHMAC
         buffer = new ByteArrayOutputStream();
     }
 
-    private void checkSequenceNumberLimit(long seqNo) throws GeneralSecurityException
+    private void checkSequenceNumberLimit(TlsCounterData counterData) throws GeneralSecurityException
     {
+        long seqNo;
+        if (counterData instanceof DTLSCounterData)
+        {
+            seqNo = ((DTLSCounterData) counterData).getCleanSeqNo();
+        }
+        else
+        {
+            seqNo = counterData.getSeqNo();
+        }
         if (seqNo >= 0x00001fffffffffffL)
         {
             throw new GeneralSecurityException("Sequence number extremely close to overflow (2^44-1 packets).");
         }
     }
 
-    private void reKeying(long seqNo) throws GeneralSecurityException
+    private void reKeying(TlsCounterData counterData) throws GeneralSecurityException
     {
-        checkSequenceNumberLimit(seqNo);
+        checkSequenceNumberLimit(counterData);
+        long seqNo = TlsGostCounter.getSeqNo(counterData);
         try
         {
             String algorithm = "GOST3412_2015_K";
@@ -73,15 +85,15 @@ public class JceTlsGostHMAC extends JceTlsHMAC
     }
 
     @Override
-    public byte[] calculateMAC(long seqNo)
+    public byte[] calculateMAC(TlsCounterData counterData)
     {
         try
         {
-            reKeying(seqNo);
+            reKeying(counterData);
             byte[] data = buffer.toByteArray();
             clean();
             super.update(data, 0, data.length);
-            return super.calculateMAC();
+            return super.calculateMAC(counterData);
         }
         catch (GeneralSecurityException e)
         {
@@ -90,11 +102,11 @@ public class JceTlsGostHMAC extends JceTlsHMAC
     }
 
     @Override
-    public void calculateMAC(long seqNo, byte[] output, int outOff)
+    public void calculateMAC(TlsCounterData counterData, byte[] output, int outOff)
     {
         try
         {
-            reKeying(seqNo);
+            reKeying(counterData);
             byte[] data = buffer.toByteArray();
             clean();
             super.update(data, 0, data.length);

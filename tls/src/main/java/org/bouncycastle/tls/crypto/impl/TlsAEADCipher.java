@@ -14,6 +14,7 @@ import org.bouncycastle.tls.crypto.TlsCryptoUtils;
 import org.bouncycastle.tls.crypto.TlsDecodeResult;
 import org.bouncycastle.tls.crypto.TlsEncodeResult;
 import org.bouncycastle.tls.crypto.TlsSecret;
+import org.bouncycastle.tls.crypto.TlsCounterData;
 import org.bouncycastle.util.Arrays;
 
 /**
@@ -185,7 +186,7 @@ public final class TlsAEADCipher
         return innerPlaintextLimit - (encryptUseInnerPlaintext ? 1 : 0);
     }
 
-    public TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion,
+    public TlsEncodeResult encodePlaintext(TlsCounterData counterData, short contentType, ProtocolVersion recordVersion,
         int headerAllocation, byte[] plaintext, int plaintextOffset, int plaintextLength) throws IOException
     {
         byte[] nonce = new byte[encryptNonce.length + record_iv_length];
@@ -201,10 +202,10 @@ public final class TlsAEADCipher
             case NONCE_RFC5288:
                 System.arraycopy(encryptNonce, 0, nonce, 0, encryptNonce.length);
                 // RFC 5288/6655: The nonce_explicit MAY be the 64-bit sequence number.
-                TlsUtils.writeUint64(seqNo, nonce, encryptNonce.length);
+                TlsUtils.writeUint64(counterData.getSeqNo(), nonce, encryptNonce.length);
                 break;
             case NONCE_RFC7905:
-                TlsUtils.writeUint64(seqNo, nonce, nonce.length - 8);
+                TlsUtils.writeUint64(counterData.getSeqNo(), nonce, nonce.length - 8);
                 for (int i = 0; i < encryptNonce.length; ++i)
                 {
                     nonce[i] ^= encryptNonce[i];
@@ -238,7 +239,7 @@ public final class TlsAEADCipher
             recordType = isTLSv13 ? ContentType.application_data : ContentType.tls12_cid;
         }
 
-        byte[] additionalData = getAdditionalData(seqNo, recordType, recordVersion, ciphertextLength,
+        byte[] additionalData = getAdditionalData(counterData.getSeqNo(), recordType, recordVersion, ciphertextLength,
             innerPlaintextLength, encryptConnectionID);
 
         try
@@ -266,7 +267,7 @@ public final class TlsAEADCipher
         return new TlsEncodeResult(output, 0, output.length, recordType);
     }
 
-    public TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion,
+    public TlsDecodeResult decodeCiphertext(TlsCounterData counterData, short recordType, ProtocolVersion recordVersion,
         byte[] ciphertext, int ciphertextOffset, int ciphertextLength) throws IOException
     {
         if (getPlaintextDecodeLimit(ciphertextLength) < 0)
@@ -283,7 +284,7 @@ public final class TlsAEADCipher
             System.arraycopy(ciphertext, ciphertextOffset, nonce, nonce.length - record_iv_length, record_iv_length);
             break;
         case NONCE_RFC7905:
-            TlsUtils.writeUint64(seqNo, nonce, nonce.length - 8);
+            TlsUtils.writeUint64(counterData.getSeqNo(), nonce, nonce.length - 8);
             for (int i = 0; i < decryptNonce.length; ++i)
             {
                 nonce[i] ^= decryptNonce[i];
@@ -299,7 +300,7 @@ public final class TlsAEADCipher
         int encryptionLength = ciphertextLength - record_iv_length;
         int innerPlaintextLength = decryptCipher.getOutputSize(encryptionLength);
 
-        byte[] additionalData = getAdditionalData(seqNo, recordType, recordVersion, ciphertextLength,
+        byte[] additionalData = getAdditionalData(counterData.getSeqNo(), recordType, recordVersion, ciphertextLength,
             innerPlaintextLength, decryptConnectionID);
 
         int outputPos;

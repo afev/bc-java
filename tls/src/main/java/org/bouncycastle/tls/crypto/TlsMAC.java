@@ -33,10 +33,10 @@ public interface TlsMAC
     /**
      * Return calculated MAC for any input passed in.
      *
-     * @param seqNo sequence number.
+     * @param counterData Data about sequence number.
      * @return the MAC value.
      */
-    default byte[] calculateMAC(long seqNo)
+    default byte[] calculateMAC(TlsCounterData counterData)
     {
         return calculateMAC();
     }
@@ -52,11 +52,11 @@ public interface TlsMAC
     /**
      * Write the calculated MAC to an output buffer.
      *
-     * @param seqNo sequence number.
+     * @param counterData Data about sequence number.
      * @param output output array to write the MAC to.
      * @param outOff offset into the output array to write the MAC to.
      */
-    default void calculateMAC(long seqNo, byte[] output, int outOff)
+    default void calculateMAC(TlsCounterData counterData, byte[] output, int outOff)
     {
         calculateMAC(output, outOff);
     }

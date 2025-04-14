@@ -645,12 +645,10 @@ class DTLSRecordLayer
             }
         }
 
-        long macSeqNo = getMacSequenceNumber(recordEpoch.getEpoch(), seq);
-
         TlsDecodeResult decoded;
         try
         {
-            decoded = recordEpoch.getCipher().decodeCiphertext(macSeqNo, seq, recordType, recordVersion, record,
+            decoded = recordEpoch.getCipher().decodeCiphertext(new DTLSCounterData(recordEpoch.getEpoch(), seq), recordType, recordVersion, record,
                 recordHeaderLength, length);
         }
         catch (TlsFatalAlert fatalAlert)
@@ -1003,12 +1001,11 @@ class DTLSRecordLayer
         {
             int recordEpoch = writeEpoch.getEpoch();
             long recordSequenceNumber = writeEpoch.allocateSequenceNumber();
-            long macSequenceNumber = getMacSequenceNumber(recordEpoch, recordSequenceNumber);
             ProtocolVersion recordVersion = writeVersion;
 
             int recordHeaderLength = writeEpoch.getRecordHeaderLengthWrite();
 
-            TlsEncodeResult encoded = writeEpoch.getCipher().encodePlaintext(macSequenceNumber, recordSequenceNumber, contentType,
+            TlsEncodeResult encoded = writeEpoch.getCipher().encodePlaintext(new DTLSCounterData(recordEpoch, recordSequenceNumber), contentType,
                 recordVersion, recordHeaderLength, buf, off, len);
 
             int ciphertextLength = encoded.len - recordHeaderLength;
@@ -1031,8 +1028,4 @@ class DTLSRecordLayer
         }
     }
 
-    private static long getMacSequenceNumber(int epoch, long sequence_number)
-    {
-        return ((epoch & 0xFFFFFFFFL) << 48) | sequence_number;
-    }
 }
