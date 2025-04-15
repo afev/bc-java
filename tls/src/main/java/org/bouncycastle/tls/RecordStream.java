@@ -10,7 +10,6 @@ import org.bouncycastle.tls.crypto.TlsCipher;
 import org.bouncycastle.tls.crypto.TlsDecodeResult;
 import org.bouncycastle.tls.crypto.TlsEncodeResult;
 import org.bouncycastle.tls.crypto.TlsNullNullCipher;
-import org.bouncycastle.tls.crypto.TlsCounterData;
 
 /**
  * An implementation of the TLS 1.0/1.1/1.2 record layer.
@@ -253,7 +252,7 @@ class RecordStream
         throws IOException
     {
         long seqNo = readSeqNo.nextValue(AlertDescription.unexpected_message);
-        TlsDecodeResult decoded = readCipher.decodeCiphertext(new TlsCounterData(seqNo), recordType, recordVersion, ciphertext, off, len);
+        TlsDecodeResult decoded = readCipher.decodeCiphertext(seqNo, recordType, recordVersion, ciphertext, off, len);
 
         checkLength(decoded.len, plaintextLimit, AlertDescription.record_overflow);
 
@@ -295,7 +294,7 @@ class RecordStream
         long seqNo = writeSeqNo.nextValue(AlertDescription.internal_error);
         ProtocolVersion recordVersion = writeVersion;
 
-        TlsEncodeResult encoded = writeCipher.encodePlaintext(new TlsCounterData(seqNo), contentType, recordVersion,
+        TlsEncodeResult encoded = writeCipher.encodePlaintext(seqNo, contentType, recordVersion,
             RecordFormat.FRAGMENT_OFFSET, plaintext, plaintextOffset, plaintextLength);
 
         int ciphertextLength = encoded.len - RecordFormat.FRAGMENT_OFFSET;

@@ -64,7 +64,7 @@ public class TlsGostBlockCipher implements TlsCipher
     }
 
     @Override
-    public TlsEncodeResult encodePlaintext(TlsCounterData counterData, short contentType, ProtocolVersion recordVersion,
+    public TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion,
         int headerAllocation, byte[] plaintext, int offset, int len) throws IOException
     {
 
@@ -83,11 +83,11 @@ public class TlsGostBlockCipher implements TlsCipher
 
         short recordType = contentType;
 
-        byte[] mac = writeMac.calculateMac(counterData, recordType, null, outBuf, innerPlaintextOffset, innerPlaintextLength);
+        byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, null, outBuf, innerPlaintextOffset, innerPlaintextLength);
         System.arraycopy(mac, 0, outBuf, outOff, mac.length);
         outOff += mac.length;
 
-        encryptCipher.doFinal(TlsGostCounter.getSeqNo(counterData), outBuf, headerAllocation, outOff - headerAllocation, outBuf, headerAllocation);
+        encryptCipher.doFinal(seqNo, recordVersion, outBuf, headerAllocation, outOff - headerAllocation, outBuf, headerAllocation);
 
         if (outOff != outBuf.length)
         {
@@ -98,7 +98,7 @@ public class TlsGostBlockCipher implements TlsCipher
     }
 
     @Override
-    public TlsDecodeResult decodeCiphertext(TlsCounterData counterData, short recordType, ProtocolVersion recordVersion,
+    public TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion,
         byte[] ciphertext, int offset, int len) throws IOException
     {
 
@@ -109,12 +109,12 @@ public class TlsGostBlockCipher implements TlsCipher
             throw new TlsFatalAlert(AlertDescription.decode_error);
         }
 
-        decryptCipher.doFinal(TlsGostCounter.getSeqNo(counterData), ciphertext, offset, len, ciphertext, offset);
+        decryptCipher.doFinal(seqNo, recordVersion, ciphertext, offset, len, ciphertext, offset);
 
         int innerPlaintextLength = len;
         innerPlaintextLength -= macSize;
 
-        byte[] expectedMac = readMac.calculateMacConstantTime(counterData, recordType, null, ciphertext, offset, innerPlaintextLength, len - macSize, randomData);
+        byte[] expectedMac = readMac.calculateMacConstantTime(seqNo, recordVersion, recordType, null, ciphertext, offset, innerPlaintextLength, len - macSize, randomData);
         boolean badMac = !TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext, offset + innerPlaintextLength);
 
         if (badMac)

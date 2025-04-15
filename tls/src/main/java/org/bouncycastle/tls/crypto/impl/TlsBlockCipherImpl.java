@@ -1,5 +1,7 @@
 package org.bouncycastle.tls.crypto.impl;
 
+import org.bouncycastle.tls.ProtocolVersion;
+
 import java.io.IOException;
 
 /**
@@ -55,7 +57,7 @@ public interface TlsBlockCipherImpl
      * @return the amount of data written to output.
      * @throws IOException in case of failure.
      */
-    default int doFinal(long seqNo, byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset) throws IOException
+    default int doFinal(long seqNo, ProtocolVersion recordVersion, byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset) throws IOException
     {
         return doFinal(input, inputOffset, inputLength, output, outputOffset);
     }

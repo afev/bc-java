@@ -1,9 +1,7 @@
 package org.bouncycastle.tls.crypto.impl.jcajce;
 
-import org.bouncycastle.tls.DTLSCounterData;
+import org.bouncycastle.tls.ProtocolVersion;
 import org.bouncycastle.tls.TlsUtils;
-import org.bouncycastle.tls.crypto.TlsCounterData;
-import org.bouncycastle.tls.crypto.impl.TlsGostCounter;
 
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
@@ -48,32 +46,29 @@ public class JceTlsGostHMAC extends JceTlsHMAC
         buffer = new ByteArrayOutputStream();
     }
 
-    private void checkSequenceNumberLimit(TlsCounterData counterData) throws GeneralSecurityException
+    private void checkSequenceNumberLimit(long seqNo) throws GeneralSecurityException
     {
-        long seqNo;
-        if (counterData instanceof DTLSCounterData)
-        {
-            seqNo = ((DTLSCounterData) counterData).getCleanSeqNo();
-        }
-        else
-        {
-            seqNo = counterData.getSeqNo();
-        }
         if (seqNo >= 0x00001fffffffffffL)
         {
             throw new GeneralSecurityException("Sequence number extremely close to overflow (2^44-1 packets).");
         }
     }
 
-    private void reKeying(TlsCounterData counterData) throws GeneralSecurityException
+    private void reKeying(long seqNo, ProtocolVersion recordVersion) throws GeneralSecurityException
     {
-        checkSequenceNumberLimit(counterData);
-        long seqNo = TlsGostCounter.getSeqNo(counterData);
+        int epoch = 0;
+        long sequenceNumber = seqNo;
+        if (recordVersion.isDTLS())
+        {
+            epoch = (int) ((seqNo >>> 48) & 0xffff);
+            sequenceNumber = seqNo & 0xffffffffL;
+        }
+        checkSequenceNumberLimit(sequenceNumber);
         try
         {
             String algorithm = "GOST3412_2015_K";
             SecretKeyFactory secretKeyFactory = crypto.getHelper().createSecretKeyFactory(algorithm + "_TLS_DERIVED_MAC_KEY");
-            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(seqNo), "SEQ_NO")); // 1. pass the sequence number
+            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(sequenceNumber|epoch), "SEQ_NO")); // 1. pass the sequence number
             SecretKey key = secretKeyFactory.translateKey(baseKey.getSecretKey()); // 2. derive a new key from key tree
             hmac.init(key); // mac size is 16
             this.seqNo = seqNo;
@@ -85,15 +80,15 @@ public class JceTlsGostHMAC extends JceTlsHMAC
     }
 
     @Override
-    public byte[] calculateMAC(TlsCounterData counterData)
+    public byte[] calculateMAC(long seqNo, ProtocolVersion recordVersion)
     {
         try
         {
-            reKeying(counterData);
+            reKeying(seqNo, recordVersion);
             byte[] data = buffer.toByteArray();
             clean();
             super.update(data, 0, data.length);
-            return super.calculateMAC(counterData);
+            return super.calculateMAC();
         }
         catch (GeneralSecurityException e)
         {
@@ -102,11 +97,11 @@ public class JceTlsGostHMAC extends JceTlsHMAC
     }
 
     @Override
-    public void calculateMAC(TlsCounterData counterData, byte[] output, int outOff)
+    public void calculateMAC(long seqNo, ProtocolVersion recordVersion, byte[] output, int outOff)
     {
         try
         {
-            reKeying(counterData);
+            reKeying(seqNo, recordVersion);
             byte[] data = buffer.toByteArray();
             clean();
             super.update(data, 0, data.length);

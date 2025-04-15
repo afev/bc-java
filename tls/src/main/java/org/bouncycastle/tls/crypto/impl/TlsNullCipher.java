@@ -13,7 +13,6 @@ import org.bouncycastle.tls.crypto.TlsCryptoParameters;
 import org.bouncycastle.tls.crypto.TlsDecodeResult;
 import org.bouncycastle.tls.crypto.TlsEncodeResult;
 import org.bouncycastle.tls.crypto.TlsHMAC;
-import org.bouncycastle.tls.crypto.TlsCounterData;
 import org.bouncycastle.util.Arrays;
 
 /**
@@ -98,7 +97,7 @@ public final class TlsNullCipher
         return innerPlaintextLimit - (encryptUseInnerPlaintext ? 1 : 0);        
     }
 
-    public TlsEncodeResult encodePlaintext(TlsCounterData counterData, short contentType, ProtocolVersion recordVersion, int headerAllocation,
+    public TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion, int headerAllocation,
         byte[] plaintext, int offset, int len) throws IOException
     {
         int macSize = writeMac.getSize();
@@ -116,14 +115,14 @@ public final class TlsNullCipher
             recordType = ContentType.tls12_cid;
         }
 
-        byte[] mac = writeMac.calculateMac(counterData, recordType, encryptConnectionID, ciphertext, headerAllocation,
+        byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, encryptConnectionID, ciphertext, headerAllocation,
             innerPlaintextLength);
         System.arraycopy(mac, 0, ciphertext, headerAllocation + innerPlaintextLength, mac.length);
 
         return new TlsEncodeResult(ciphertext, 0, ciphertext.length, recordType);
     }
 
-    public TlsDecodeResult decodeCiphertext(TlsCounterData counterData, short recordType, ProtocolVersion recordVersion,
+    public TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion,
         byte[] ciphertext, int offset, int len) throws IOException
     {
         int macSize = readMac.getSize();
@@ -133,7 +132,7 @@ public final class TlsNullCipher
         if (innerPlaintextLength < (decryptUseInnerPlaintext ? 1 : 0))
             throw new TlsFatalAlert(AlertDescription.decode_error);
 
-        byte[] expectedMac = readMac.calculateMac(counterData, recordType, decryptConnectionID, ciphertext, offset,
+        byte[] expectedMac = readMac.calculateMac(seqNo, recordVersion, recordType, decryptConnectionID, ciphertext, offset,
             innerPlaintextLength);
 
         boolean badMac = !TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext,

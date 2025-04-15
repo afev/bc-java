@@ -34,7 +34,7 @@ public class TlsNullNullCipher
         return ciphertextLimit;
     }
 
-    public TlsEncodeResult encodePlaintext(TlsCounterData counterData, short contentType, ProtocolVersion recordVersion, int headerAllocation,
+    public TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion, int headerAllocation,
         byte[] plaintext, int offset, int len) throws IOException
     {
         byte[] result = new byte[headerAllocation + len];
@@ -42,7 +42,7 @@ public class TlsNullNullCipher
         return new TlsEncodeResult(result, 0, result.length, contentType);
     }
 
-    public TlsDecodeResult decodeCiphertext(TlsCounterData counterData, short recordType, ProtocolVersion recordVersion,
+    public TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion,
         byte[] ciphertext, int offset, int len) throws IOException
     {
         return new TlsDecodeResult(ciphertext, offset, len, recordType);

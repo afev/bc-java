@@ -48,7 +48,7 @@ public interface TlsCipher
     /**
      * Encode the passed in plaintext using the current bulk cipher.
      *
-     * @param counterData Data about sequence number of the message represented by plaintext.
+     * @param seqNo sequence number of the message represented by plaintext.
      * @param contentType content type of the message represented by plaintext.
      * @param recordVersion {@link ProtocolVersion} used for the record.
      * @param headerAllocation extra bytes to allocate at start of returned byte array.
@@ -59,13 +59,13 @@ public interface TlsCipher
      * @throws IOException
      */
     // TODO[api] Add a parameter for how much (D)TLSInnerPlaintext padding to add    
-    TlsEncodeResult encodePlaintext(TlsCounterData counterData, short contentType, ProtocolVersion recordVersion, int headerAllocation,
+    TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion, int headerAllocation,
         byte[] plaintext, int offset, int len) throws IOException;
 
     /**
      * Decode the passed in ciphertext using the current bulk cipher.
      *
-     * @param counterData Data about sequence number of the message represented by ciphertext.
+     * @param seqNo sequence number of the message represented by ciphertext.
      * @param recordType content type used in the record for this message.
      * @param recordVersion {@link ProtocolVersion} used for the record.
      * @param ciphertext  array holding input ciphertext to the cipher.
@@ -74,7 +74,7 @@ public interface TlsCipher
      * @return A {@link TlsDecodeResult} containing the result of decoding.
      * @throws IOException
      */
-    TlsDecodeResult decodeCiphertext(TlsCounterData counterData, short recordType, ProtocolVersion recordVersion, byte[] ciphertext,
+    TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion, byte[] ciphertext,
         int offset, int len) throws IOException;
 
     void rekeyDecoder() throws IOException;

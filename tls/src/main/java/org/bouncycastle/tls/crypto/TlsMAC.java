@@ -1,5 +1,7 @@
 package org.bouncycastle.tls.crypto;
 
+import org.bouncycastle.tls.ProtocolVersion;
+
 /**
  * Interface for MAC services.
  */
@@ -33,10 +35,10 @@ public interface TlsMAC
     /**
      * Return calculated MAC for any input passed in.
      *
-     * @param counterData Data about sequence number.
+     * @param seqNo sequence number.
      * @return the MAC value.
      */
-    default byte[] calculateMAC(TlsCounterData counterData)
+    default byte[] calculateMAC(long seqNo, ProtocolVersion recordVersion)
     {
         return calculateMAC();
     }
@@ -52,11 +54,11 @@ public interface TlsMAC
     /**
      * Write the calculated MAC to an output buffer.
      *
-     * @param counterData Data about sequence number.
+     * @param seqNo sequence number.
      * @param output output array to write the MAC to.
      * @param outOff offset into the output array to write the MAC to.
      */
-    default void calculateMAC(TlsCounterData counterData, byte[] output, int outOff)
+    default void calculateMAC(long seqNo, ProtocolVersion recordVersion, byte[] output, int outOff)
     {
         calculateMAC(output, outOff);
     }

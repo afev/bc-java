@@ -13,7 +13,6 @@ import org.bouncycastle.tls.crypto.TlsCryptoParameters;
 import org.bouncycastle.tls.crypto.TlsDecodeResult;
 import org.bouncycastle.tls.crypto.TlsEncodeResult;
 import org.bouncycastle.tls.crypto.TlsHMAC;
-import org.bouncycastle.tls.crypto.TlsCounterData;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.Integers;
 import org.bouncycastle.util.Pack;
@@ -183,7 +182,7 @@ public final class TlsBlockCipher
         return innerPlaintextLimit - (encryptUseInnerPlaintext ? 1 : 0);
     }
 
-    public TlsEncodeResult encodePlaintext(TlsCounterData counterData, short contentType, ProtocolVersion recordVersion,
+    public TlsEncodeResult encodePlaintext(long seqNo, short contentType, ProtocolVersion recordVersion,
         int headerAllocation, byte[] plaintext, int offset, int len) throws IOException
     {
         int blockSize = encryptCipher.getBlockSize();
@@ -238,7 +237,7 @@ public final class TlsBlockCipher
 
         if (!encryptThenMAC)
         {
-            byte[] mac = writeMac.calculateMac(counterData, recordType, encryptConnectionID, outBuf, innerPlaintextOffset,
+            byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, encryptConnectionID, outBuf, innerPlaintextOffset,
                 innerPlaintextLength);
             System.arraycopy(mac, 0, outBuf, outOff, mac.length);
             outOff += mac.length;
@@ -254,7 +253,7 @@ public final class TlsBlockCipher
 
         if (encryptThenMAC)
         {
-            byte[] mac = writeMac.calculateMac(counterData, recordType, encryptConnectionID, outBuf, headerAllocation,
+            byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, encryptConnectionID, outBuf, headerAllocation,
                 outOff - headerAllocation);
             System.arraycopy(mac, 0, outBuf, outOff, mac.length);
             outOff += mac.length;
@@ -268,7 +267,7 @@ public final class TlsBlockCipher
         return new TlsEncodeResult(outBuf, 0, outBuf.length, recordType);
     }
 
-    public TlsDecodeResult decodeCiphertext(TlsCounterData counterData, short recordType, ProtocolVersion recordVersion,
+    public TlsDecodeResult decodeCiphertext(long seqNo, short recordType, ProtocolVersion recordVersion,
         byte[] ciphertext, int offset, int len) throws IOException
     {
         int blockSize = decryptCipher.getBlockSize();
@@ -307,7 +306,7 @@ public final class TlsBlockCipher
 
         if (encryptThenMAC)
         {
-            byte[] expectedMac = readMac.calculateMac(counterData, recordType, decryptConnectionID, ciphertext,
+            byte[] expectedMac = readMac.calculateMac(seqNo, recordVersion, recordType, decryptConnectionID, ciphertext,
                 offset, len - macSize);
 
             boolean checkMac = TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext,
@@ -345,7 +344,7 @@ public final class TlsBlockCipher
         {
             innerPlaintextLength -= macSize;
 
-            byte[] expectedMac = readMac.calculateMacConstantTime(counterData, recordType, decryptConnectionID,
+            byte[] expectedMac = readMac.calculateMacConstantTime(seqNo, recordVersion, recordType, decryptConnectionID,
                 ciphertext, offset, innerPlaintextLength, blocks_length - macSize, randomData);
 
             badMac |= !TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext,

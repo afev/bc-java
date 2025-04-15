@@ -1,5 +1,6 @@
 package org.bouncycastle.tls.crypto.impl.jcajce;
 
+import org.bouncycastle.tls.ProtocolVersion;
 import org.bouncycastle.tls.TlsUtils;
 
 import javax.crypto.Cipher;
@@ -47,13 +48,20 @@ public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl
         this.baseKey = secretKey;
     }
 
-    private void reKeying(long seqNo) throws GeneralSecurityException
+    private void reKeying(long seqNo, ProtocolVersion recordVersion) throws GeneralSecurityException
     {
+        int epoch = 0;
+        long sequenceNumber = seqNo;
+        if (recordVersion.isDTLS())
+        {
+            epoch = (int) ((seqNo >>> 48) & 0xffff);
+            sequenceNumber = seqNo & 0xffffffffL;
+        }
         try
         {
             String algorithm = "GOST3412_2015_K";
             SecretKeyFactory secretKeyFactory = crypto.getHelper().createSecretKeyFactory(algorithm + "_TLS_DERIVED_CIPHER_KEY");
-            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(seqNo), "SEQ_NO")); // 1. pass the sequence number
+            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(sequenceNumber|epoch), "SEQ_NO")); // 1. pass the sequence number
             SecretKey key = secretKeyFactory.translateKey(baseKey.getSecretKey()); // 2. derive a new key from key tree
             if (seqNo != this.seqNo)
             {
@@ -69,11 +77,11 @@ public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl
     }
 
     @Override
-    public int doFinal(long seqNo, byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset)
+    public int doFinal(long seqNo, ProtocolVersion recordVersion, byte[] input, int inputOffset, int inputLength, byte[] output, int outputOffset)
     {
         try
         {
-            reKeying(seqNo);
+            reKeying(seqNo, recordVersion);
             return super.doFinal(input, inputOffset, inputLength, output, outputOffset);
         }
         catch (GeneralSecurityException e)
