@@ -1653,6 +1653,26 @@ public class TlsUtils
         return c;
     }
 
+    public static long byteArrayToLongBE(byte[] data, int offset)
+    {
+        if (offset + 7 >= data.length || offset < 0)
+        {
+            throw new IllegalArgumentException("Wrong offset " + offset);
+        }
+        int i1 = data[offset + 7] & 0xff | data[offset + 6] << 8 & 0xff00 | data[offset + 5] << 16 & 0xff0000 | data[offset + 4] << 24 & 0xff000000;
+        int i2 = data[offset + 3] & 0xff | data[offset + 2] << 8 & 0xff00 | data[offset + 1] << 16 & 0xff0000 | data[offset] << 24 & 0xff000000;
+        long l1 = ((long) i1 << 32 >>> 32);
+        long l2 = ((long) i2 << 32 >>> 32);
+        return (l2 << 32) | l1;
+    }
+
+    public static byte[] longToByteArrayBE(long data)
+    {
+        byte[] res = longToByteArray(data);
+        inverse(res);
+        return res;
+    }
+
     public static byte[] longToByteArray(long data)
     {
         byte[] res = new byte[8];
@@ -1674,7 +1694,7 @@ public class TlsUtils
      * @param block Block.
      * @param limit Limit.
      */
-    public static void increaseBlockByOne(byte[] block, int limit)
+    public static void increaseBlockByOneBE(byte[] block, int limit)
     {
         int k = limit;
         while ((k >= 0) && (++block[k] == 0))
@@ -1683,14 +1703,15 @@ public class TlsUtils
         }
     }
 
-    public static byte[] inverse(byte[] data)
+    public static void inverse(byte[] data)
     {
-        byte[] inverted = new byte[data.length];
-        for (int i = 0; i < data.length; i++)
+        byte t;
+        for (int i = 0; i < (data.length >> 1); i++)
         {
-            inverted[i] = data[data.length - 1 - i];
+            t = data[i];
+            data[i] = data[data.length - 1 - i];
+            data[data.length - 1 - i] = t;
         }
-        return inverted;
     }
 
     static byte[] calculateEndPointHash(TlsContext context, TlsCertificate certificate, byte[] enc) throws IOException

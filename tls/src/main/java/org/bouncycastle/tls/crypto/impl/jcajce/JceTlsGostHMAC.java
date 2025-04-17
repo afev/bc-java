@@ -17,7 +17,6 @@ public class JceTlsGostHMAC extends JceTlsHMAC
 {
     protected final JcaTlsCrypto crypto;
     private JceTlsSecretKey baseKey;
-    private long seqNo = 0;
     private ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
     public JceTlsGostHMAC(JcaTlsCrypto crypto, int cryptoHashAlgorithm, Mac hmac, String algorithm)
@@ -56,11 +55,9 @@ public class JceTlsGostHMAC extends JceTlsHMAC
 
     private void reKeying(long seqNo, ProtocolVersion recordVersion) throws GeneralSecurityException
     {
-        int epoch = 0;
         long sequenceNumber = seqNo;
         if (recordVersion.isDTLS())
         {
-            epoch = (int) ((seqNo >>> 48) & 0xffff);
             sequenceNumber = seqNo & 0xffffffffL;
         }
         checkSequenceNumberLimit(sequenceNumber);
@@ -68,10 +65,9 @@ public class JceTlsGostHMAC extends JceTlsHMAC
         {
             String algorithm = "GOST3412_2015_K";
             SecretKeyFactory secretKeyFactory = crypto.getHelper().createSecretKeyFactory(algorithm + "_TLS_DERIVED_MAC_KEY");
-            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(sequenceNumber|epoch), "SEQ_NO")); // 1. pass the sequence number
-            SecretKey key = secretKeyFactory.translateKey(baseKey.getSecretKey()); // 2. derive a new key from key tree
+            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(seqNo), "SEQ_NO")); // 1. pass the sequence number in case of TLS or (sequenceNumber|epoch) in case of DTLS
+            SecretKey key = secretKeyFactory.translateKey(baseKey.getSecretKey()); // 2. derive a new key from the key tree
             hmac.init(key); // mac size is 16
-            this.seqNo = seqNo;
         }
         catch (NoSuchAlgorithmException | NoSuchProviderException e)
         {

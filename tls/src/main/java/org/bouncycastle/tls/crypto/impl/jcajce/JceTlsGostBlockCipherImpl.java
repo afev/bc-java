@@ -15,9 +15,9 @@ import java.security.NoSuchProviderException;
 
 public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl
 {
-
     private JceTlsSecretKey baseKey;
     private byte[] cipherIv;
+    private long cipherIvLongBE = 0;
     private long seqNo = 0;
 
     public JceTlsGostBlockCipherImpl(JcaTlsCrypto crypto, Cipher cipher, String algorithm, int keySize, boolean isEncrypting) throws GeneralSecurityException
@@ -41,6 +41,7 @@ public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl
             throw new IllegalStateException("Invalid IV length: " + tmpIv.length);
         }
         cipherIv = tmpIv;
+        cipherIvLongBE = TlsUtils.byteArrayToLongBE(tmpIv, 0);
    }
 
     public void setBaseKey(JceTlsSecretKey secretKey)
@@ -50,22 +51,22 @@ public class JceTlsGostBlockCipherImpl extends JceBlockCipherImpl
 
     private void reKeying(long seqNo, ProtocolVersion recordVersion) throws GeneralSecurityException
     {
-        int epoch = 0;
-        long sequenceNumber = seqNo;
-        if (recordVersion.isDTLS())
-        {
-            epoch = (int) ((seqNo >>> 48) & 0xffff);
-            sequenceNumber = seqNo & 0xffffffffL;
-        }
         try
         {
             String algorithm = "GOST3412_2015_K";
             SecretKeyFactory secretKeyFactory = crypto.getHelper().createSecretKeyFactory(algorithm + "_TLS_DERIVED_CIPHER_KEY");
-            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(sequenceNumber|epoch), "SEQ_NO")); // 1. pass the sequence number
-            SecretKey key = secretKeyFactory.translateKey(baseKey.getSecretKey()); // 2. derive a new key from key tree
+            secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.longToByteArray(seqNo), "SEQ_NO")); // 1. pass the sequence number in case of TLS or (sequenceNumber|epoch) in case of DTLS
+            SecretKey key = secretKeyFactory.translateKey(baseKey.getSecretKey()); // 2. derive a new key from the key tree
             if (seqNo != this.seqNo)
             {
-                TlsUtils.increaseBlockByOne(cipherIv, cipherIv.length - 1); // increase IV by 1 per record
+                if (recordVersion.isDTLS())
+                {
+                    cipherIv = TlsUtils.longToByteArrayBE(cipherIvLongBE + seqNo); // increase IV by (sequenceNumber|epoch) per record
+                }
+                else
+                {
+                    TlsUtils.increaseBlockByOneBE(cipherIv, cipherIv.length - 1); // increase IV by 1 per record
+                }
             }
             cipher.init(cipherMode, key, new IvParameterSpec(cipherIv));
             this.seqNo = seqNo;

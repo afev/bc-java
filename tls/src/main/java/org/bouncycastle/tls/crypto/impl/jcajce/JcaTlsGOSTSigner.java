@@ -49,7 +49,8 @@ public class JcaTlsGOSTSigner implements TlsSigner
             signer.initSign(privateKey, crypto.getSecureRandom());
             signer.update(hash, 0, hash.length);
             byte[] signature = signer.sign();
-            return TlsUtils.inverse(signature);
+            TlsUtils.inverse(signature);
+            return signature;
         }
         catch (GeneralSecurityException e)
         {

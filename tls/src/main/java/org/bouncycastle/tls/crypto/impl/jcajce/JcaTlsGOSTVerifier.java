@@ -54,7 +54,8 @@ public class JcaTlsGOSTVerifier implements TlsVerifier
             Signature verifier = crypto.getHelper().createSignature(algorithmName);
             verifier.initVerify(publicKey);
             verifier.update(hash, 0, hash.length);
-            byte[] signature = TlsUtils.inverse(digitallySigned.getSignature());
+            byte[] signature = digitallySigned.getSignature();
+            TlsUtils.inverse(signature);
             return verifier.verify(signature);
         }
         catch (GeneralSecurityException e)
