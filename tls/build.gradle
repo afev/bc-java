@@ -145,6 +145,11 @@ jar {
     manifest.attributes('Bundle-Version': "${v}")
 }
 
+task testJar(type: Jar) {
+    archiveBaseName = jar.archiveBaseName
+    archiveClassifier = 'tests'
+    from sourceSets.test.output
+}
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
   archiveBaseName = jar.archiveBaseName
@@ -152,10 +157,18 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
+task testSourceJar(type: Jar) {
+    archiveBaseName = jar.archiveBaseName
+    archiveClassifier = 'test-sources'
+    from sourceSets.test.allSource
+}
+
 artifacts {
     archives jar
     archives javadocJar
     archives sourcesJar
+    archives testJar
+    archives testSourceJar
 }
 
 publishing {
