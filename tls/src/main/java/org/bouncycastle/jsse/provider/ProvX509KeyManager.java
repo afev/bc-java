@@ -173,6 +173,8 @@ class ProvX509KeyManager
         addFilter(filters, DSAPublicKey.class, "DSA");
         addFilter(filters, ECPublicKey.class, "EC");
 
+        addFilter(filters, "ECGOST3410-2012");
+
         return Collections.unmodifiableMap(filters);
     }
 
@@ -200,6 +202,8 @@ class ProvX509KeyManager
         addFilterLegacyServer(filters, "RSA", KeyExchangeAlgorithm.DHE_RSA, KeyExchangeAlgorithm.ECDHE_RSA,
             KeyExchangeAlgorithm.SRP_RSA);
         addFilterLegacyServer(filters, ProvAlgorithmChecker.KU_KEY_ENCIPHERMENT, "RSA", KeyExchangeAlgorithm.RSA);
+
+        addFilter(filters, "ECGOST3410-2012");
 
         return Collections.unmodifiableMap(filters);
     }

@@ -69,6 +69,7 @@ import org.bouncycastle.tls.crypto.impl.TlsBlockCipher;
 import org.bouncycastle.tls.crypto.impl.TlsImplUtils;
 import org.bouncycastle.tls.crypto.impl.TlsNullCipher;
 import org.bouncycastle.util.Arrays;
+import org.bouncycastle.tls.ClientCertificateType;
 
 /**
  * Class for providing cryptographic services for TLS based on implementations in the BC light-weight API.
@@ -509,6 +510,20 @@ public class BcTlsCrypto
         getSecureRandom().nextBytes(data);
         TlsUtils.writeVersion(version, data, 0);
         return adoptLocalSecret(data);
+    }
+
+    @Override
+    public TlsSecret generateGOSTPreMasterSecret()
+    {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public short[] getCertificateTypes()
+    {
+        return new short[]{ ClientCertificateType.ecdsa_sign,
+                ClientCertificateType.rsa_sign, ClientCertificateType.dss_sign };
     }
 
     public Digest cloneDigest(int cryptoHashAlgorithm, Digest digest)

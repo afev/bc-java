@@ -7,14 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
@@ -151,7 +148,8 @@ public class BCJSSEClientTest
     private static BCExtendedSSLSession runInContext(SSLContext sslContext, BCExtendedSSLSession sessionToResume)
         throws Exception
     {
-        String host = "www.google.com";
+        // String host = "www.google.com";
+        String host = "www.cryptopro.ru";
 //        String host = "www.oracle.com";
 //        String host = "www.microsoft.com";
 //        String host = "tools.ietf.org";
@@ -162,8 +160,6 @@ public class BCJSSEClientTest
 
         SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
         SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket(host, port);
-
-        sslSocket.setEnabledProtocols(new String[]{ VERSION });
 
         if (null != sessionToResume)
         {
@@ -176,6 +172,7 @@ public class BCJSSEClientTest
 ////            "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",
 //            "TLS_RSA_WITH_AES_128_CBC_SHA256",
 //        });
+        sslParameters.setCipherSuites(new String[]{ "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC" });
         sslParameters.setProtocols(new String[]{ VERSION });
 //        sslParameters.setProtocols(new String[]{ "TLSv1.3", "TLSv1.2" });
 

@@ -164,6 +164,9 @@ class CipherSuiteInfo
         case EncryptionAlgorithm.SM4_GCM:
             decomposition.add("SM4_GCM");
             break;
+        case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+            decomposition.add("KUZNYECHIK_CTR_OMAC");
+            break;
         default:
             throw new IllegalArgumentException();
         }
@@ -184,6 +187,9 @@ class CipherSuiteInfo
 //            break;
         case CryptoHashAlgorithm.sm3:
             addAll(decomposition, "SM3", "HmacSM3");
+            break;
+        case CryptoHashAlgorithm.gostr3411_2012_256:
+            addAll(decomposition, "GOST3411-2012-256", "HmacGOST3411-2012-256");
             break;
         default:
             throw new IllegalArgumentException();
@@ -213,6 +219,7 @@ class CipherSuiteInfo
         case KeyExchangeAlgorithm.DH_anon:
         case KeyExchangeAlgorithm.ECDH_anon:
         case KeyExchangeAlgorithm.NULL:
+        case KeyExchangeAlgorithm.GOSTR341112_256:
             break;
 
         default:
@@ -239,6 +246,7 @@ class CipherSuiteInfo
         case KeyExchangeAlgorithm.ECDHE_ECDSA:
         case KeyExchangeAlgorithm.ECDHE_RSA:
         case KeyExchangeAlgorithm.RSA:
+        case KeyExchangeAlgorithm.GOSTR341112_256:
             break;
 
         default:
@@ -268,8 +276,12 @@ class CipherSuiteInfo
         case MACAlgorithm.hmac_sha384:
             addAll(decomposition, "SHA384", "SHA-384", "HmacSHA384");
             break;
+        case MACAlgorithm.hmac_gost_2012_256:
+            addAll(decomposition, "GOST3411-2012-256", "GOST3411-2012-256", "HmacGOST3411-2012-256");
+            break;
+
 //        case MACAlgorithm.hmac_sha512:
-//            addAll(decomposition, "SHA512", "SHA-512", "HmacSHA512");
+//            addAll(decomposition, "SHA512", "SHA-512", "HmacGOST3411-2012-256");
 //            break;
         default:
             throw new IllegalArgumentException();
@@ -418,6 +430,8 @@ class CipherSuiteInfo
         case CipherSuite.TLS_SM4_GCM_SM3:
             return CryptoHashAlgorithm.sm3;
 
+        case CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC:
+            return CryptoHashAlgorithm.gostr3411_2012_256;
         default:
             throw new IllegalArgumentException();
         }
@@ -462,6 +476,8 @@ class CipherSuiteInfo
             return "SM4/CCM/NoPadding";
         case EncryptionAlgorithm.SM4_GCM:
             return "SM4/GCM/NoPadding";
+        case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+            return "GOST3412-2015/CTR_ACPKM/NoPadding";
         default:
             throw new IllegalArgumentException();
         }

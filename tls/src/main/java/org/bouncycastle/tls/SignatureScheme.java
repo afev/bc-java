@@ -53,6 +53,16 @@ public class SignatureScheme
     public static final int DRAFT_mldsa87 = 0x0906;
 
     /*
+     * RFC 9189
+     */
+    public static final int gostr34102012_256 = 0x0840;
+    public static final int gostr34102012_512 = 0x0841;
+
+    public static final int gostr34102012_256_priv = 0xeeee;
+    public static final int gostr34102012_512_priv = 0xefef;
+    public static final int gostr34102001_priv = 0xeded;
+
+    /*
      * RFC 8446 reserved for private use (0xFE00..0xFFFF)
      */
 
@@ -95,6 +105,12 @@ public class SignatureScheme
             return CryptoHashAlgorithm.sha512;
         case sm2sig_sm3:
             return CryptoHashAlgorithm.sm3;
+        case gostr34102012_256:
+            return CryptoHashAlgorithm.gostr3411_2012_256;
+        // case gostr34102001_priv:
+        //     return CryptoHashAlgorithm.gostr3411_94_priv;
+        // case gostr34102012_256_priv:
+        //     return CryptoHashAlgorithm.gostr3411_2012_256_priv;
         default:
         {
             short hashAlgorithm = getHashAlgorithm(signatureScheme);
@@ -162,6 +178,12 @@ public class SignatureScheme
             return "DRAFT_mldsa65";
         case DRAFT_mldsa87:
             return "DRAFT_mldsa87";
+        case gostr34102012_256:
+            return "gostr34102012_256";
+        // case gostr34102001_priv:
+        //     return "gostr34102001_priv";
+        // case gostr34102012_256_priv:
+        //     return "gostr34102012_256_priv";
         default:
             return "UNKNOWN";
         }

@@ -51,6 +51,7 @@ import org.bouncycastle.util.Integers;
 import org.bouncycastle.util.Shorts;
 import org.bouncycastle.util.encoders.Hex;
 import org.bouncycastle.util.io.Streams;
+import org.bouncycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
 
 /**
  * Some helper functions for the TLS API.
@@ -120,6 +121,8 @@ public class TlsUtils
             SignatureAndHashAlgorithm.gostr34102012_256);
         addCertSigAlgOID(h, RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512,
             SignatureAndHashAlgorithm.gostr34102012_512);
+        // addCertSigAlgOID(h, CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_2001,
+        //     SignatureAndHashAlgorithm.gostr34102001_priv);
 
         // TODO[RFC 8998]
 //        addCertSigAlgOID(h, GMObjectIdentifiers.sm2sign_with_sm3, HashAlgorithm.sm3, SignatureAlgorithm.sm2);
@@ -153,6 +156,7 @@ public class TlsUtils
         result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.ecdsa));
         result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.rsa));
         result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.dsa));
+        result.addElement(SignatureAndHashAlgorithm.getInstance(HashAlgorithm.Intrinsic, SignatureAlgorithm.gostr34102012_256));
         return result;
     }
 
@@ -1438,6 +1442,9 @@ public class TlsUtils
         case KeyExchangeAlgorithm.SRP_RSA:
             return SignatureAlgorithm.rsa;
 
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return SignatureAlgorithm.gostr34102012_256;
+
         default:
             return -1;
         }
@@ -1631,12 +1638,81 @@ public class TlsUtils
         return copy;
     }
 
-    static byte[] concat(byte[] a, byte[] b)
+    public static byte[] generateSV(TlsCrypto crypto, SecurityParameters securityParameters, int cryptoHashAlgorithm)
+    {
+        byte[] seed = TlsUtils.concat(securityParameters.getClientRandom(), securityParameters.getServerRandom());
+        TlsHash hash = crypto.createHash(cryptoHashAlgorithm);
+        hash.update(seed, 0, seed.length);
+        return hash.calculateHash();
+    }
+
+    public static byte[] concat(byte[] a, byte[] b)
     {
         byte[] c = new byte[a.length + b.length];
         System.arraycopy(a, 0, c, 0, a.length);
         System.arraycopy(b, 0, c, a.length, b.length);
         return c;
+    }
+
+    public static long byteArrayToLongBE(byte[] data, int offset)
+    {
+        if (offset + 7 >= data.length || offset < 0)
+        {
+            throw new IllegalArgumentException("Wrong offset " + offset);
+        }
+        int i1 = data[offset + 7] & 0xff | data[offset + 6] << 8 & 0xff00 | data[offset + 5] << 16 & 0xff0000 | data[offset + 4] << 24 & 0xff000000;
+        int i2 = data[offset + 3] & 0xff | data[offset + 2] << 8 & 0xff00 | data[offset + 1] << 16 & 0xff0000 | data[offset] << 24 & 0xff000000;
+        long l1 = ((long) i1 << 32 >>> 32);
+        long l2 = ((long) i2 << 32 >>> 32);
+        return (l2 << 32) | l1;
+    }
+
+    public static byte[] longToByteArrayBE(long data)
+    {
+        byte[] res = longToByteArray(data);
+        inverse(res);
+        return res;
+    }
+
+    public static byte[] longToByteArray(long data)
+    {
+        byte[] res = new byte[8];
+        res[7] = (byte) (data >> 56 & 0xff);
+        res[6] = (byte) (data >> 48 & 0xff);
+        res[5] = (byte) (data >> 40 & 0xff);
+        res[4] = (byte) (data >> 32 & 0xff);
+        res[3] = (byte) (data >> 24 & 0xff);
+        res[2] = (byte) (data >> 16 & 0xff);
+        res[1] = (byte) (data >> 8 & 0xff);
+        res[0] = (byte) (data & 0xff);
+        return res;
+    }
+
+    /**
+     * Increase the sequence number in the block array.
+     * it is a 64-bit number stored in big-endian format.
+     *
+     * @param block Block.
+     * @param limit Limit.
+     */
+    public static void increaseBlockByOneBE(byte[] block, int limit)
+    {
+        int k = limit;
+        while ((k >= 0) && (++block[k] == 0))
+        {
+            k--;
+        }
+    }
+
+    public static void inverse(byte[] data)
+    {
+        byte t;
+        for (int i = 0; i < (data.length >> 1); i++)
+        {
+            t = data[i];
+            data[i] = data[data.length - 1 - i];
+            data[data.length - 1 - i] = t;
+        }
     }
 
     static byte[] calculateEndPointHash(TlsContext context, TlsCertificate certificate, byte[] enc) throws IOException
@@ -3094,8 +3170,10 @@ public class TlsUtils
         case EncryptionAlgorithm.SM4_CBC:
             return CipherType.block;
 
-        case EncryptionAlgorithm._28147_CNT_IMIT:
         case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
+            return CipherType.block;
+
+        case EncryptionAlgorithm._28147_CNT_IMIT:
         case EncryptionAlgorithm.MAGMA_CTR_OMAC:
         case EncryptionAlgorithm.NULL:
         case EncryptionAlgorithm.RC4_40:
@@ -3766,7 +3844,8 @@ public class TlsUtils
         case CipherSuite.TLS_RSA_PSK_WITH_NULL_SHA384:
         case CipherSuite.TLS_RSA_WITH_ARIA_256_CBC_SHA384:
             return MACAlgorithm.hmac_sha384;
-
+        case CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC:
+            return MACAlgorithm.hmac_gost_2012_256;
         default:
             return -1;
         }
@@ -4148,6 +4227,8 @@ public class TlsUtils
             return SignatureAlgorithm.anonymous != signatureAlgorithm;
 
         case KeyExchangeAlgorithm.GOSTR341112_256:
+            return true;
+
         default:
             return false;
         }
@@ -4432,6 +4513,7 @@ public class TlsUtils
 
         // TODO[RFC 9189]
         case KeyExchangeAlgorithm.GOSTR341112_256:
+            return crypto.hasSignatureAlgorithm(SignatureAlgorithm.gostr34102012_256);
 
         default:
             return false;
@@ -4521,6 +4603,9 @@ public class TlsUtils
             return factory.createSRPKeyExchangeClient(keyExchange, client.getSRPIdentity(),
                 client.getSRPConfigVerifier());
 
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return factory.createGOSTKeyExchangeClient(keyExchange);
+
         default:
             /*
              * Note: internal error here; the TlsProtocol implementation verifies that the
@@ -4577,6 +4662,9 @@ public class TlsUtils
         case KeyExchangeAlgorithm.SRP_DSS:
         case KeyExchangeAlgorithm.SRP_RSA:
             return factory.createSRPKeyExchangeServer(keyExchange, server.getSRPLoginParameters());
+
+        case KeyExchangeAlgorithm.GOSTR341112_256:
+            return factory.createGOSTKeyExchangeServer(keyExchange);
 
         default:
             /*
@@ -5970,6 +6058,19 @@ public class TlsUtils
         TlsSecret preMasterSecret = context.getCrypto().generateRSAPreMasterSecret(version);
         byte[] encryptedPreMasterSecret = preMasterSecret.encrypt(encryptor);
         writeEncryptedPMS(context, encryptedPreMasterSecret, output);
+        return preMasterSecret;
+    }
+
+    /**
+     * Generate a pre_master_secret and send it encrypted to the server.
+     */
+    public static TlsSecret generateEncryptedGOSTPreMasterSecret(TlsContext context,
+        TlsEncryptor encryptor, OutputStream output) throws IOException
+    {
+        TlsSecret preMasterSecret = context.getCrypto().generateGOSTPreMasterSecret();
+        byte[] encryptedPreMasterSecret = preMasterSecret.encrypt(encryptor);
+        // ASN.1 encoded data, opaque is not needed.
+        SSL3Utils.writeEncryptedPMS(encryptedPreMasterSecret, output);
         return preMasterSecret;
     }
 

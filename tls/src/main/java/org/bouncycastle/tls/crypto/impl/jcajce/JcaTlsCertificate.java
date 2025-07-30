@@ -24,12 +24,7 @@ import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.jcajce.util.JcaJceHelper;
-import org.bouncycastle.tls.AlertDescription;
-import org.bouncycastle.tls.HashAlgorithm;
-import org.bouncycastle.tls.SignatureAlgorithm;
-import org.bouncycastle.tls.SignatureScheme;
-import org.bouncycastle.tls.TlsFatalAlert;
-import org.bouncycastle.tls.TlsUtils;
+import org.bouncycastle.tls.*;
 import org.bouncycastle.tls.crypto.Tls13Verifier;
 import org.bouncycastle.tls.crypto.TlsCertificate;
 import org.bouncycastle.tls.crypto.TlsCertificateRole;
@@ -101,6 +96,7 @@ public class JcaTlsCertificate
     protected DHPublicKey pubKeyDH = null;
     protected ECPublicKey pubKeyEC = null;
     protected PublicKey pubKeyRSA = null;
+    protected PublicKey pubKeyGOST = null;
 
     public JcaTlsCertificate(JcaTlsCrypto crypto, byte[] encoding)
         throws IOException
@@ -131,6 +127,29 @@ public class JcaTlsCertificate
 //            this.pubKeyEC = getPubKeyEC();
 //            return new JcaTlsSM2Encryptor(crypto, pubKeyEC);
 //        }
+        }
+
+        throw new TlsFatalAlert(AlertDescription.internal_error);
+    }
+
+    public TlsEncryptor createEncryptor(int tlsCertificateRole, int encryptionAlgorithm,
+        AlgorithmParameterSpec cipherParams) throws IOException
+    {
+        validateKeyUsageBit(JcaTlsCertificate.KU_KEY_ENCIPHERMENT);
+
+        switch (tlsCertificateRole)
+        {
+            case TlsCertificateRole.GOST_ENCRYPTION:
+            {
+                this.pubKeyGOST = getPublicKey();
+                switch (encryptionAlgorithm)
+                {
+                    case KeyExchangeAlgorithm.GOSTR341112_256:
+                    {
+                        return new JcaTlsGOSTEncryptor(crypto, pubKeyGOST, "GostTransportK", cipherParams); // export on ephemeral key
+                    }
+                }
+            }
         }
 
         throw new TlsFatalAlert(AlertDescription.internal_error);
@@ -185,8 +204,12 @@ public class JcaTlsCertificate
 
         // TODO[RFC 9189]
         case SignatureAlgorithm.gostr34102012_256:
-        case SignatureAlgorithm.gostr34102012_512:
+        {
+            int signatureScheme = SignatureScheme.from(HashAlgorithm.Intrinsic, signatureAlgorithm);
+            return new JcaTlsGOSTVerifier(crypto, getPublicKey(), signatureScheme, "NoneWITHECGOST3410-2012-256");
+        }
 
+        case SignatureAlgorithm.gostr34102012_512:
         default:
             throw new TlsFatalAlert(AlertDescription.internal_error);
         }

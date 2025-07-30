@@ -115,7 +115,7 @@ public final class TlsNullCipher
             recordType = ContentType.tls12_cid;
         }
 
-        byte[] mac = writeMac.calculateMac(seqNo, recordType, encryptConnectionID, ciphertext, headerAllocation,
+        byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, encryptConnectionID, ciphertext, headerAllocation,
             innerPlaintextLength);
         System.arraycopy(mac, 0, ciphertext, headerAllocation + innerPlaintextLength, mac.length);
 
@@ -132,7 +132,7 @@ public final class TlsNullCipher
         if (innerPlaintextLength < (decryptUseInnerPlaintext ? 1 : 0))
             throw new TlsFatalAlert(AlertDescription.decode_error);
 
-        byte[] expectedMac = readMac.calculateMac(seqNo, recordType, decryptConnectionID, ciphertext, offset,
+        byte[] expectedMac = readMac.calculateMac(seqNo, recordVersion, recordType, decryptConnectionID, ciphertext, offset,
             innerPlaintextLength);
 
         boolean badMac = !TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext,

@@ -36,6 +36,10 @@ public abstract class TlsCryptoUtils
             return CryptoHashAlgorithm.sha384;
         case HashAlgorithm.sha512:
             return CryptoHashAlgorithm.sha512;
+        // case HashAlgorithm.gostr3411_94_priv:
+        //     return CryptoHashAlgorithm.gostr3411_94_priv;
+        // case HashAlgorithm.gostr3411_2012_256_priv:
+        //     return CryptoHashAlgorithm.gostr3411_2012_256_priv;
         default:
             throw new IllegalArgumentException("specified HashAlgorithm invalid: " + HashAlgorithm.getText(hashAlgorithm));
         }
@@ -55,6 +59,8 @@ public abstract class TlsCryptoUtils
             return CryptoHashAlgorithm.sha384;
         case MACAlgorithm.hmac_sha512:
             return CryptoHashAlgorithm.sha512;
+        case MACAlgorithm.hmac_gost_2012_256:
+            return CryptoHashAlgorithm.gostr3411_2012_256;
         default:
             throw new IllegalArgumentException("specified MACAlgorithm not an HMAC: " + MACAlgorithm.getText(macAlgorithm));
         }

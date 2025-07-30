@@ -91,4 +91,8 @@ public abstract class AbstractTlsKeyExchangeFactory
     {
         throw new TlsFatalAlert(AlertDescription.internal_error);
     }
+    public TlsKeyExchange createGOSTKeyExchangeClient(int keyExchange) throws IOException
+    {
+        throw new TlsFatalAlert(AlertDescription.internal_error);
+    }
 }

@@ -20,6 +20,7 @@ public class MACAlgorithm
     public static final int hmac_sha256 = 3;
     public static final int hmac_sha384 = 4;
     public static final int hmac_sha512 = 5;
+    public static final int hmac_gost_2012_256 = 6;
 
     public static String getName(int macAlgorithm)
     {
@@ -37,6 +38,8 @@ public class MACAlgorithm
             return "hmac_sha384";
         case hmac_sha512:
             return "hmac_sha512";
+        case hmac_gost_2012_256:
+            return "hmac_gost_2012_256";
         default:
             return "UNKNOWN";
         }
@@ -56,6 +59,7 @@ public class MACAlgorithm
         case hmac_sha256:
         case hmac_sha384:
         case hmac_sha512:
+        case hmac_gost_2012_256:
             return true;
         default:
             return false;

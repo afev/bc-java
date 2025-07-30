@@ -8,6 +8,7 @@ import org.bouncycastle.tls.Certificate;
 import org.bouncycastle.tls.DefaultTlsCredentialedSigner;
 import org.bouncycastle.tls.SignatureAndHashAlgorithm;
 import org.bouncycastle.tls.SignatureScheme;
+import org.bouncycastle.tls.SignatureAlgorithm;
 import org.bouncycastle.tls.crypto.TlsCryptoParameters;
 import org.bouncycastle.tls.crypto.TlsSigner;
 
@@ -65,6 +66,10 @@ public class JcaDefaultTlsCredentialedSigner
         else if ("Ed448".equalsIgnoreCase(algorithm))
         {
             signer = new JcaTlsEd448Signer(crypto, privateKey);
+        }
+        else if (algorithm.contains("GOST"))
+        {
+            signer = new JcaTlsGOSTSigner(crypto, privateKey, SignatureAlgorithm.gostr34102012_256, "NoneWITHECGOST3410-2012-256");
         }
         else
         {
