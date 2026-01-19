@@ -140,7 +140,7 @@ class MockDTLSClient
             public TlsCredentials getClientCredentials(CertificateRequest certificateRequest) throws IOException
             {
                 short[] certificateTypes = certificateRequest.getCertificateTypes();
-                if (certificateTypes == null || !Arrays.contains(certificateTypes, ClientCertificateType.rsa_sign))
+                if (certificateTypes == null || !(Arrays.contains(certificateTypes, ClientCertificateType.rsa_sign) || Arrays.contains(certificateTypes, ClientCertificateType.gost_sign256)))
                 {
                     return null;
                 }
