@@ -44,4 +44,9 @@ public interface TlsKeyExchangeFactory
 
     TlsKeyExchange createSRPKeyExchangeServer(int keyExchange, TlsSRPLoginParameters loginParameters)
         throws IOException;
+
+    TlsKeyExchange createGOSTKeyExchangeClient(int keyExchange) throws IOException;
+
+    TlsKeyExchange createGOSTKeyExchangeServer(int keyExchange) throws IOException;
+
 }

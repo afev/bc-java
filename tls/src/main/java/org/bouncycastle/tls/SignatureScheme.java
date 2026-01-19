@@ -76,6 +76,16 @@ public class SignatureScheme
     public static final int DRAFT_slhdsa_shake_256f = 0x091C;
 
     /*
+     * RFC 9189
+     */
+    public static final int gostr34102012_256 = 0x0840;
+    public static final int gostr34102012_512 = 0x0841;
+
+    public static final int gostr34102012_256_priv = 0xeeee;
+    public static final int gostr34102012_512_priv = 0xefef;
+    public static final int gostr34102001_priv = 0xeded;
+
+    /*
      * RFC 8446 reserved for private use (0xFE00..0xFFFF)
      */
 
@@ -130,6 +140,8 @@ public class SignatureScheme
             return CryptoHashAlgorithm.sha512;
         case sm2sig_sm3:
             return CryptoHashAlgorithm.sm3;
+        case gostr34102012_256:
+            return CryptoHashAlgorithm.gostr3411_2012_256;
         default:
         {
             short hashAlgorithm = getHashAlgorithm(signatureScheme);

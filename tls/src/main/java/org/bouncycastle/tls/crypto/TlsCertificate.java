@@ -2,6 +2,7 @@ package org.bouncycastle.tls.crypto;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.spec.AlgorithmParameterSpec;
 
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -21,6 +22,21 @@ public interface TlsCertificate
      * @return a TlsEncryptor based on this certificate's public key.
      */
     TlsEncryptor createEncryptor(int tlsCertificateRole) throws IOException;
+
+    /**
+     * Return an encryptor based on the public key in this certificate,
+     * encryption algorithm and cipher parameters.
+     *
+     * @param tlsCertificateRole
+     *            {@link TlsCertificateRole}
+     * @param encryptionAlgorithm
+     *            {@link org.bouncycastle.tls.EncryptionAlgorithm}
+     * @param cipherParams cipher parameters
+     *            {@link AlgorithmParameterSpec}
+     * @return a TlsEncryptor based on this certificate's public key.
+     */
+    TlsEncryptor createEncryptor(int tlsCertificateRole, int encryptionAlgorithm,
+        AlgorithmParameterSpec cipherParams) throws IOException;
 
     /**
      * @param signatureAlgorithm

@@ -81,6 +81,8 @@ class ProvX509TrustManager
         addKeyUsageServer(keyUsages, ProvAlgorithmChecker.KU_KEY_AGREEMENT, KeyExchangeAlgorithm.DH_DSS,
             KeyExchangeAlgorithm.DH_RSA, KeyExchangeAlgorithm.ECDH_ECDSA, KeyExchangeAlgorithm.ECDH_RSA);
 
+        addKeyUsageServer(keyUsages, ProvAlgorithmChecker.KU_DIGITAL_SIGNATURE, KeyExchangeAlgorithm.GOSTR341112_256);
+
         return Collections.unmodifiableMap(keyUsages);
     }
 

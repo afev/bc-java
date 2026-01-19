@@ -15,9 +15,9 @@ import org.bouncycastle.tls.crypto.TlsHMAC;
 public class JceTlsHMAC
     implements TlsHMAC
 {
-    private final Mac hmac;
-    private final String algorithm;
-    private final int internalBlockSize;
+    protected final Mac hmac;
+    protected final String algorithm;
+    protected final int internalBlockSize;
 
     /**
      * Base constructor.

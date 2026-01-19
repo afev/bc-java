@@ -18,11 +18,11 @@ public class JceBlockCipherImpl
 {
     private static final int BUF_SIZE = 32 * 1024;
 
-    private final JcaTlsCrypto crypto;
-    private final Cipher cipher;
-    private final String algorithm;
-    private final int keySize;
-    private final int cipherMode;
+    protected final JcaTlsCrypto crypto;
+    protected final Cipher cipher;
+    protected final String algorithm;
+    protected final int keySize;
+    protected final int cipherMode;
 
     private SecretKey key;
 

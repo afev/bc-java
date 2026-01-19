@@ -519,8 +519,7 @@ class ProvTlsServer
         }
 
         // TODO[jsse] These should really be based on TlsCrypto support
-        short[] certificateTypes = new short[]{ ClientCertificateType.ecdsa_sign,
-            ClientCertificateType.rsa_sign, ClientCertificateType.dss_sign };
+        short[] certificateTypes = getCrypto().getCertificateTypes();
 
         return new CertificateRequest(certificateTypes, serverSigAlgs, certificateAuthorities);
     }
@@ -1101,6 +1100,7 @@ class ProvTlsServer
         case KeyExchangeAlgorithm.ECDHE_ECDSA:
         case KeyExchangeAlgorithm.ECDHE_RSA:
         case KeyExchangeAlgorithm.RSA:
+        case KeyExchangeAlgorithm.GOSTR341112_256:
         {
             if (KeyExchangeAlgorithm.RSA == keyExchangeAlgorithm
                 || !TlsUtils.isSignatureAlgorithmsExtensionAllowed(context.getServerVersion()))
@@ -1198,6 +1198,11 @@ class ProvTlsServer
             LOG.fine(serverID + " (1.2) selected credentials for signature scheme '" + selectedSignatureSchemeInfo
                 + "' (keyType '" + selectedKeyType + "'), with private key algorithm '"
                 + JsseUtils.getPrivateKeyAlgorithm(x509Key.getPrivateKey()) + "'");
+        }
+
+        if (KeyExchangeAlgorithm.GOSTR341112_256 == keyExchangeAlgorithm)
+        {
+            return JsseUtils.createCredentialedGostDecryptor(getCrypto(), x509Key);
         }
 
         return JsseUtils.createCredentialedSigner(context, getCrypto(), x509Key,

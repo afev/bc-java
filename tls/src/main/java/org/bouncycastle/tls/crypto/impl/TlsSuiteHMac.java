@@ -64,7 +64,7 @@ public final class TlsSuiteHMac
         return macSize;
     }
 
-    public byte[] calculateMac(long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff, int msgLen)
+    public byte[] calculateMac(long seqNo, ProtocolVersion recordVersion, short type, byte[] connectionID, byte[] msg, int msgOff, int msgLen)
     {
         ProtocolVersion serverVersion = cryptoParams.getServerVersion();
 
@@ -96,16 +96,16 @@ public final class TlsSuiteHMac
 
         mac.update(msg, msgOff, msgLen);
 
-        return truncate(mac.calculateMAC());
+        return truncate(mac.calculateMAC(seqNo, recordVersion));
     }
 
-    public byte[] calculateMacConstantTime(long seqNo, short type, byte[] connectionID, byte[] msg, int msgOff,
+    public byte[] calculateMacConstantTime(long seqNo, ProtocolVersion recordVersion, short type, byte[] connectionID, byte[] msg, int msgOff,
         int msgLen, int fullLength, byte[] dummyData)
     {
         /*
          * Actual MAC only calculated on 'length' bytes...
          */
-        byte[] result = calculateMac(seqNo, type, connectionID, msg, msgOff, msgLen);
+        byte[] result = calculateMac(seqNo, recordVersion, type, connectionID, msg, msgOff, msgLen);
 
         /*
          * ...but ensure a constant number of complete digest blocks are processed (as many as would

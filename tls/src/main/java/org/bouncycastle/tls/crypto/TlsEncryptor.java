@@ -1,5 +1,6 @@
 package org.bouncycastle.tls.crypto;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 
 /**
@@ -18,4 +19,15 @@ public interface TlsEncryptor
      */
     byte[] encrypt(byte[] input, int inOff, int length)
         throws IOException;
+
+    /**
+     * Encrypt secret key.
+     *
+     * @param secretKey secret key.
+     * @return the encrypted data.
+     * @throws IOException in case of a processing error.
+     */
+    byte[] wrap(SecretKey secretKey)
+        throws IOException;
+
 }

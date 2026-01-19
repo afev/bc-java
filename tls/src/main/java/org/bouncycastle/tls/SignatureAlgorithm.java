@@ -40,6 +40,10 @@ public class SignatureAlgorithm
     public static final short gostr34102012_256 = 64;
     public static final short gostr34102012_512 = 65;
 
+    public static final short gostr34102012_256_priv = 0xee;
+    public static final short gostr34102012_512_priv = 0xef;
+    public static final short gostr34102001_priv = 0xed;
+
     public static short getClientCertificateType(short signatureAlgorithm)
     {
         switch (signatureAlgorithm)

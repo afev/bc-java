@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.tls.AlertDescription;
@@ -57,5 +58,12 @@ final class JcaTlsRSAEncryptor
              */
             throw new TlsFatalAlert(AlertDescription.internal_error, e);
         }
+    }
+
+    @Override
+    public byte[] wrap(SecretKey secretKey) throws IOException
+    {
+        byte[] input = secretKey.getEncoded();
+        return encrypt(input, 0, input.length);
     }
 }

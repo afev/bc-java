@@ -237,7 +237,7 @@ public final class TlsBlockCipher
 
         if (!encryptThenMAC)
         {
-            byte[] mac = writeMac.calculateMac(seqNo, recordType, encryptConnectionID, outBuf, innerPlaintextOffset,
+            byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, encryptConnectionID, outBuf, innerPlaintextOffset,
                 innerPlaintextLength);
             System.arraycopy(mac, 0, outBuf, outOff, mac.length);
             outOff += mac.length;
@@ -253,7 +253,7 @@ public final class TlsBlockCipher
 
         if (encryptThenMAC)
         {
-            byte[] mac = writeMac.calculateMac(seqNo, recordType, encryptConnectionID, outBuf, headerAllocation,
+            byte[] mac = writeMac.calculateMac(seqNo, recordVersion, recordType, encryptConnectionID, outBuf, headerAllocation,
                 outOff - headerAllocation);
             System.arraycopy(mac, 0, outBuf, outOff, mac.length);
             outOff += mac.length;
@@ -306,7 +306,7 @@ public final class TlsBlockCipher
 
         if (encryptThenMAC)
         {
-            byte[] expectedMac = readMac.calculateMac(seqNo, recordType, decryptConnectionID, ciphertext,
+            byte[] expectedMac = readMac.calculateMac(seqNo, recordVersion, recordType, decryptConnectionID, ciphertext,
                 offset, len - macSize);
 
             boolean checkMac = TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext,
@@ -344,7 +344,7 @@ public final class TlsBlockCipher
         {
             innerPlaintextLength -= macSize;
 
-            byte[] expectedMac = readMac.calculateMacConstantTime(seqNo, recordType, decryptConnectionID,
+            byte[] expectedMac = readMac.calculateMacConstantTime(seqNo, recordVersion, recordType, decryptConnectionID,
                 ciphertext, offset, innerPlaintextLength, blocks_length - macSize, randomData);
 
             badMac |= !TlsUtils.constantTimeAreEqual(macSize, expectedMac, 0, ciphertext,
