@@ -63,6 +63,8 @@ dependencies {
     implementation project(':util')
     implementation project(':pkix')
 
+    implementation fileTree(dir: 'csp40', include: ['*.jar'])
+
     java9Implementation project(':prov')
     java9Implementation project(':util')
     java9Implementation project(':pkix')
