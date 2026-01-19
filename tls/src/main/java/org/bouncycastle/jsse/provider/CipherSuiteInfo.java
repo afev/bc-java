@@ -302,6 +302,9 @@ class CipherSuiteInfo
         case MACAlgorithm.hmac_sha512:
             decomposeHmacSHA512(decomposition);
             break;
+        case MACAlgorithm.hmac_gost_2012_256:
+            addAll(decomposition, "GOST3411-2012-256", "GOST3411-2012-256", "HmacGOST3411-2012-256");
+            break;
         default:
             throw new IllegalArgumentException();
         }
