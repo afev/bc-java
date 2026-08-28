@@ -1,4 +1,4 @@
-ФОРК BC ДЛЯ ДОБАВЛЕНИЯ ПОДДЕРЖКИ ГОСТ (D)TLS 1.2
+ВЕТКА BC С ПОДДЕРЖКОЙ ГОСТ (D)TLS 1.2
 --
 
 Форк `BC`: https://github.com/afev/bc-java (https://github.com/afev/bc-java.git)
