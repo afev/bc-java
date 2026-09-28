@@ -20,7 +20,7 @@ public class MACAlgorithm
     public static final int hmac_sha256 = 3;
     public static final int hmac_sha384 = 4;
     public static final int hmac_sha512 = 5;
-    public static final int hmac_gost_2012_256 = 6;
+    public static final int hmac_gost_2012_256 = 0xff01;
 
     public static String getName(int macAlgorithm)
     {
