@@ -647,7 +647,7 @@ public class TlsTestUtils
     static PemObject loadPemResource(String resource)
         throws IOException
     {
-        InputStream s = TlsTestUtils.class.getResourceAsStream(resource);
+        InputStream s = TestResourceFinder.findTestResource("tls/credentials", resource);
         PemReader p = new PemReader(new InputStreamReader(s));
         PemObject o = p.readPemObject();
         p.close();
