@@ -2,23 +2,28 @@ package org.bouncycastle.tls.test;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.security.KeyStore;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 
 import org.bouncycastle.asn1.x509.Certificate;
-import org.bouncycastle.tls.*;
+import org.bouncycastle.tls.AlertDescription;
+import org.bouncycastle.tls.AlertLevel;
+import org.bouncycastle.tls.CertificateRequest;
+import org.bouncycastle.tls.ChannelBinding;
+import org.bouncycastle.tls.ClientCertificateType;
+import org.bouncycastle.tls.DefaultTlsClient;
+import org.bouncycastle.tls.ProtocolName;
+import org.bouncycastle.tls.ProtocolVersion;
+import org.bouncycastle.tls.SignatureAlgorithm;
+import org.bouncycastle.tls.TlsAuthentication;
+import org.bouncycastle.tls.TlsCredentials;
+import org.bouncycastle.tls.TlsFatalAlert;
+import org.bouncycastle.tls.TlsServerCertificate;
+import org.bouncycastle.tls.TlsSession;
+import org.bouncycastle.tls.TlsUtils;
 import org.bouncycastle.tls.crypto.TlsCertificate;
-import org.bouncycastle.tls.crypto.TlsCrypto;
-import org.bouncycastle.tls.crypto.TlsCryptoParameters;
 import org.bouncycastle.tls.crypto.impl.bc.BcTlsCrypto;
-import org.bouncycastle.tls.crypto.impl.jcajce.JcaDefaultTlsCredentialedSigner;
-import org.bouncycastle.tls.crypto.impl.jcajce.JcaTlsCertificate;
-import org.bouncycastle.tls.crypto.impl.jcajce.JcaTlsCrypto;
 import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
-import ru.CryptoPro.JCP.KeyStore.StoreInputStream;
 
 class MockDTLSClient
     extends DefaultTlsClient
@@ -27,28 +32,11 @@ class MockDTLSClient
 
     private int handshakeTimeoutMillis = 0;
 
-    private int cipherSuite = 0;
-
     MockDTLSClient(TlsSession session)
     {
         super(new BcTlsCrypto());
 
         this.session = session;
-    }
-
-    MockDTLSClient(TlsCrypto crypto, TlsSession session)
-    {
-        super(crypto);
-
-        this.session = session;
-    }
-
-    MockDTLSClient(TlsCrypto crypto, TlsSession session, int cipherSuite)
-    {
-        super(crypto);
-
-        this.session = session;
-        this.cipherSuite = cipherSuite;
     }
 
     public TlsSession getSessionToResume()
@@ -120,11 +108,11 @@ class MockDTLSClient
                     throw new TlsFatalAlert(AlertDescription.bad_certificate);
                 }
 
-                String[] trustedCertResources = new String[]{ /*"x509-server-dsa.pem", "x509-server-ecdh.pem",
+                String[] trustedCertResources = new String[]{ "x509-server-dsa.pem", "x509-server-ecdh.pem",
                     "x509-server-ecdsa.pem", "x509-server-ed25519.pem", "x509-server-ed448.pem",
                     "x509-server-ml_dsa_44.pem", "x509-server-ml_dsa_65.pem", "x509-server-ml_dsa_87.pem",
                     "x509-server-rsa_pss_256.pem", "x509-server-rsa_pss_384.pem", "x509-server-rsa_pss_512.pem",
-                    "x509-server-rsa-enc.pem", "x509-server-rsa-sign.pem",*/ "x509-server-rsa.pem", "x509-server-gost.pem" };
+                    "x509-server-rsa-enc.pem", "x509-server-rsa-sign.pem" };
 
                 TlsCertificate[] certPath = TlsTestUtils.getTrustedCertPath(context.getCrypto(), chain[0],
                     trustedCertResources);
@@ -140,52 +128,13 @@ class MockDTLSClient
             public TlsCredentials getClientCredentials(CertificateRequest certificateRequest) throws IOException
             {
                 short[] certificateTypes = certificateRequest.getCertificateTypes();
-                if (certificateTypes == null || !(Arrays.contains(certificateTypes, ClientCertificateType.rsa_sign) || Arrays.contains(certificateTypes, ClientCertificateType.gost_sign256)))
+                if (certificateTypes == null || !Arrays.contains(certificateTypes, ClientCertificateType.rsa_sign))
                 {
                     return null;
                 }
-                // return TlsTestUtils.loadSignerCredentials(context, certificateRequest.getSupportedSignatureAlgorithms(),
-                //     SignatureAlgorithm.rsa, "x509-client-rsa.pem", "x509-client-key-rsa.pem");
-                TlsCrypto crypto = context.getCrypto();
-                TlsCryptoParameters cryptoParams = new TlsCryptoParameters(context);
-                PrivateKey privateKey;
-                java.security.cert.Certificate[] certificates;
-                SignatureAndHashAlgorithm signatureAndHashAlgorithm;
-                int actualCipherSuite = cryptoParams.getSecurityParametersHandshake().getCipherSuite();
-                System.out.println("Require client credentials for cipher suite " + actualCipherSuite);
-                if (actualCipherSuite == CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC)
-                {
-                    try {
-                        KeyStore clientStore = KeyStore.getInstance("HDIMAGE", "JCSP");
-                        clientStore.load(new StoreInputStream("bc_tls_client"), null);
-                        privateKey = (PrivateKey) clientStore.getKey("bc_tls_client", null);
-                        certificates = clientStore.getCertificateChain("bc_tls_client");
-                        signatureAndHashAlgorithm = SignatureAndHashAlgorithm.gostr34102012_256;
-                    } catch (Exception e) {
-                        throw new IOException(e);
-                    }
-                }
-                else
-                {
-                    try {
-                        KeyStore clientStore = KeyStore.getInstance("HDIMAGE", "JCSPRSA");
-                        clientStore.load(new StoreInputStream("bc_tls_client_rsa"), null);
-                        privateKey = (PrivateKey) clientStore.getKey("bc_tls_client_rsa", null);
-                        certificates = clientStore.getCertificateChain("bc_tls_client_rsa");
-                        signatureAndHashAlgorithm = SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.rsa);
-                    } catch (Exception e) {
-                        throw new IOException(e);
-                    }
-                }
-                X509Certificate[] x509Certs = new X509Certificate[certificates.length];
-                System.arraycopy(certificates, 0, x509Certs, 0, certificates.length);
-                TlsCertificate[] certificateList = new TlsCertificate[x509Certs.length];
-                for (int i = 0; i < x509Certs.length; ++i)
-                {
-                    certificateList[i] = new JcaTlsCertificate((JcaTlsCrypto)crypto, x509Certs[i]);
-                }
-                org.bouncycastle.tls.Certificate bcCertificate = new org.bouncycastle.tls.Certificate(certificateList);
-                return new JcaDefaultTlsCredentialedSigner(cryptoParams, (JcaTlsCrypto)crypto, privateKey, bcCertificate, signatureAndHashAlgorithm);
+
+                return TlsTestUtils.loadSignerCredentials(context, certificateRequest.getSupportedSignatureAlgorithms(),
+                    SignatureAlgorithm.rsa, "x509-client-rsa.pem", "x509-client-key-rsa.pem");
             }
         };
     }
@@ -260,13 +209,4 @@ class MockDTLSClient
     {
         return ProtocolVersion.DTLSv12.only();
     }
-
-    protected int[] getSupportedCipherSuites() {
-        // Для тестов оставляем только одну сюиту.
-        if (cipherSuite != 0) {
-            return new int[] {cipherSuite};
-        }
-        return super.getSupportedCipherSuites();
-    }
-
 }
