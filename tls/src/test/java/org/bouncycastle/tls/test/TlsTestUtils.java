@@ -233,6 +233,7 @@ public class TlsTestUtils
         }
 
         if ("rsa".equalsIgnoreCase(eeCertResource) ||
+            "rsa2".equalsIgnoreCase(eeCertResource) ||
             "rsa-enc".equalsIgnoreCase(eeCertResource) ||
             "rsa-sign".equalsIgnoreCase(eeCertResource))
         {

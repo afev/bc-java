@@ -129,10 +129,7 @@ class GostMockDTLSServer
 
         // Клиентский сертификат x509-client-gost.pem в папке bc-java\tls\src\test\resources\org\bouncycastle\tls\test\.
         // Там же должен лежать корневой сертификат клиента в виде x509-ca-gost.pem.
-        String[] trustedCertResources = new String[]{ "x509-client-dsa.pem", "x509-client-ecdh.pem",
-                "x509-client-ecdsa.pem", "x509-client-ed25519.pem", "x509-client-ed448.pem", "x509-client-ml_dsa_44.pem",
-                "x509-client-ml_dsa_65.pem", "x509-client-ml_dsa_87.pem", "x509-client-rsa_pss_256.pem",
-                "x509-client-rsa_pss_384.pem", "x509-client-rsa_pss_512.pem", "x509-client-rsa.pem", "x509-client-gost.pem" };
+        String[] trustedCertResources = new String[]{ "x509-client-rsa2.pem", "x509-client-gost.pem" };
 
         TlsCertificate[] certPath = TlsTestUtils.getTrustedCertPath(context.getCrypto(), chain[0],
                 trustedCertResources);
