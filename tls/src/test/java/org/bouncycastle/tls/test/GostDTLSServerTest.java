@@ -39,8 +39,8 @@ public class GostDTLSServerTest
         boolean clientAuth = false;
         String recvString = "Hello World!\n";
         int port = 12443;
-        int cipherSuite = CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384;
-        // int cipherSuite = CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC;
+        // int cipherSuite = CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384;
+        int cipherSuite = CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC;
         System.out.println("args: " + Arrays.toString(args));
         for (String arg : args)
         {
