@@ -66,6 +66,36 @@ public class JceTlsSecretKey
     {
         switch (label)
         {
+            case ExporterLabel.dtls_srtp:
+            {
+                if (seed.length != 64)
+                    throw new IllegalArgumentException("DTLS-SRTP exporter seed must contain both randoms");
+                ru.CryptoPro.JCSP.MSCAPI.HHash hash = null;
+                try
+                {
+                    ru.CryptoPro.JCSP.Key.MasterSecret master = (ru.CryptoPro.JCSP.Key.MasterSecret)secretKey;
+                    ru.CryptoPro.JCSP.Key.JCSPMasterKeyInterface spec =
+                        (ru.CryptoPro.JCSP.Key.JCSPMasterKeyInterface)master.getSpec();
+                    hash = spec.hHashMasterForKeys(
+                        java.util.Arrays.copyOfRange(seed, 0, 32),
+                        java.util.Arrays.copyOfRange(seed, 32, 64),
+                        0x8031, 0, 0, 0, false);
+                    hash.setHashParam(ru.CryptoPro.JCSP.MSCAPI.HHash.HP_TLS1PRF_LABEL, Strings.toByteArray(label));
+                    hash.setHashParam(ru.CryptoPro.JCSP.MSCAPI.HHash.HP_TLS1PRF_SEED, seed);
+                    byte[] material = hash.getHash(length);
+                    if (material == null || material.length != length)
+                        throw new IllegalStateException("Unexpected exporter length");
+                    return new JceTlsSecret(crypto, material);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+                finally
+                {
+                    if (hash != null) hash.destroyHash();
+                }
+            }
             case ExporterLabel.key_expansion:
             {
                 // If call is from TlsImplUtils#calculateKeyBlock do nothing: keys are already created earlier in generateKeyForTls().
