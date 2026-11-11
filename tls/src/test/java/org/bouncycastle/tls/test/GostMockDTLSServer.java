@@ -157,6 +157,8 @@ class GostMockDTLSServer
 
         byte[] tlsUnique = context.exportChannelBinding(ChannelBinding.tls_unique);
         System.out.println("Server 'tls-unique': " + hex(tlsUnique));
+
+        GostMockTools.verifyMasterSecret(context, true);
     }
 
     public void processClientExtensions(Hashtable clientExtensions) throws IOException

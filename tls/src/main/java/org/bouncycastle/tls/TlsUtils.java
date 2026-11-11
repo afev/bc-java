@@ -1731,6 +1731,16 @@ public class TlsUtils
         return res;
     }
 
+    public static byte[] intToByteArray(int data)
+    {
+        byte[] res = new byte[4];
+        res[3] = (byte) ((data >> 24) & 0xff);
+        res[2] = (byte) ((data >> 16) & 0xff);
+        res[1] = (byte) ((data >> 8) & 0xff);
+        res[0] = (byte) (data & 0xff);
+        return res;
+    }
+
     /**
      * Increase the sequence number in the block array.
      * it is a 64-bit number stored in big-endian format.

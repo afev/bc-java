@@ -66,36 +66,6 @@ public class JceTlsSecretKey
     {
         switch (label)
         {
-            case ExporterLabel.dtls_srtp:
-            {
-                if (seed.length != 64)
-                    throw new IllegalArgumentException("DTLS-SRTP exporter seed must contain both randoms");
-                ru.CryptoPro.JCSP.MSCAPI.HHash hash = null;
-                try
-                {
-                    ru.CryptoPro.JCSP.Key.MasterSecret master = (ru.CryptoPro.JCSP.Key.MasterSecret)secretKey;
-                    ru.CryptoPro.JCSP.Key.JCSPMasterKeyInterface spec =
-                        (ru.CryptoPro.JCSP.Key.JCSPMasterKeyInterface)master.getSpec();
-                    hash = spec.hHashMasterForKeys(
-                        java.util.Arrays.copyOfRange(seed, 0, 32),
-                        java.util.Arrays.copyOfRange(seed, 32, 64),
-                        0x8031, 0, 0, 0, false);
-                    hash.setHashParam(ru.CryptoPro.JCSP.MSCAPI.HHash.HP_TLS1PRF_LABEL, Strings.toByteArray(label));
-                    hash.setHashParam(ru.CryptoPro.JCSP.MSCAPI.HHash.HP_TLS1PRF_SEED, seed);
-                    byte[] material = hash.getHash(length);
-                    if (material == null || material.length != length)
-                        throw new IllegalStateException("Unexpected exporter length");
-                    return new JceTlsSecret(crypto, material);
-                }
-                catch (Exception e)
-                {
-                    throw new RuntimeException(e);
-                }
-                finally
-                {
-                    if (hash != null) hash.destroyHash();
-                }
-            }
             case ExporterLabel.key_expansion:
             {
                 // If call is from TlsImplUtils#calculateKeyBlock do nothing: keys are already created earlier in generateKeyForTls().
@@ -130,6 +100,31 @@ public class JceTlsSecretKey
                     secretKeyFactory.generateSecret(new SecretKeySpec(seed, isEms ? "HASH" : "SEED")); // 1: pass the hash (means EMS) or seed
                     SecretKey masterSecret = secretKeyFactory.translateKey(secretKey); // 2: create an extended-master-secret from the pre-master-secret
                     return new JceTlsSecretKey(crypto, masterSecret);
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            case ExporterLabel.dtls_srtp:
+            {
+                if (seed.length != 64) {
+                    throw new IllegalArgumentException("DTLS-SRTP exporter seed must contain both randoms.");
+                }
+                try
+                {
+                    String algorithm = "GOST3412_2015_K";
+                    SecretKeyFactory secretKeyFactory = crypto.getHelper().createSecretKeyFactory(algorithm + "_SRTP_MATERIAL");
+                    secretKeyFactory.generateSecret(new SecretKeySpec(seed, "SEED")); // 1: pass the seed
+                    secretKeyFactory.generateSecret(new SecretKeySpec(Strings.toByteArray(label), "LABEL")); // 2: pass the label
+                    secretKeyFactory.generateSecret(new SecretKeySpec(TlsUtils.intToByteArray(length), "SRTP_MATERIAL_LENGTH")); // 3: pass the length of expected material
+                    SecretKeySpec materialSpec = (SecretKeySpec) secretKeyFactory.getKeySpec(secretKey, SecretKeySpec.class); // 4. require material for srtp
+                    byte[] material = materialSpec.getEncoded();
+                    if (material == null || material.length != length)
+                    {
+                        throw new IllegalStateException("Unexpected exporter length.");
+                    }
+                    return new JceTlsSecret(crypto, material);
                 }
                 catch (Exception e)
                 {
