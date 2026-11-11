@@ -79,12 +79,14 @@ class GostMockDTLSServer
 
     public CertificateRequest getCertificateRequest() throws IOException
     {
-        if (clientAuth) {
+        if (clientAuth)
+        {
             short[] certificateTypes = new short[]{ClientCertificateType.rsa_sign,
                     ClientCertificateType.dss_sign, ClientCertificateType.ecdsa_sign, ClientCertificateType.gost_sign256};
 
             Vector serverSigAlgs = null;
-            if (TlsUtils.isSignatureAlgorithmsExtensionAllowed(context.getServerVersion())) {
+            if (TlsUtils.isSignatureAlgorithmsExtensionAllowed(context.getServerVersion()))
+            {
                 serverSigAlgs = TlsUtils.getDefaultSupportedSignatureAlgorithms(context);
             }
 
@@ -205,7 +207,8 @@ class GostMockDTLSServer
             org.bouncycastle.tls.Certificate bcCert = new org.bouncycastle.tls.Certificate(new TlsCertificate[] {javaCert});
             TlsCredentialedDecryptor decryptor = new JceDefaultTlsCredentialedDecryptor((JcaTlsCrypto) getCrypto(), bcCert, privateKey);
             return decryptor;
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             throw new IOException(e);
         }
     }

@@ -71,7 +71,8 @@ public class GostDTLSServerTest
         System.out.println("Registration: " + (end - start) + " ms.");
         //----
 
-        try {
+        try
+        {
 
             // while (true) {
 
@@ -105,12 +106,14 @@ public class GostDTLSServerTest
 
             ByteArrayOutputStream out = new ByteArrayOutputStream(); // my
 
-            try {
+            try
+            {
 
                 //
                 // Process incoming packets, replying with HelloVerifyRequest, until one is verified.
                 //
-                do {
+                do
+                {
 
                     System.out.println("Waiting packet...");
                     socket.receive(packet);

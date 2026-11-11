@@ -151,25 +151,29 @@ class GostMockDTLSClient
                 System.out.println("Require client credentials for cipher suite " + actualCipherSuite);
                 if (actualCipherSuite == CipherSuite.TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC)
                 {
-                    try {
+                    try
+                    {
                         KeyStore clientStore = KeyStore.getInstance("HDIMAGE", "JCSP");
                         clientStore.load(new StoreInputStream("bc_tls_client"), null);
                         privateKey = (PrivateKey) clientStore.getKey("bc_tls_client", null);
                         certificates = clientStore.getCertificateChain("bc_tls_client");
                         signatureAndHashAlgorithm = SignatureAndHashAlgorithm.gostr34102012_256;
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         throw new IOException(e);
                     }
                 }
                 else
                 {
-                    try {
+                    try
+                    {
                         KeyStore clientStore = KeyStore.getInstance("HDIMAGE", "JCSPRSA");
                         clientStore.load(new StoreInputStream("bc_tls_client_rsa"), null);
                         privateKey = (PrivateKey) clientStore.getKey("bc_tls_client_rsa", null);
                         certificates = clientStore.getCertificateChain("bc_tls_client_rsa");
                         signatureAndHashAlgorithm = SignatureAndHashAlgorithm.getInstance(HashAlgorithm.sha1, SignatureAlgorithm.rsa);
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         throw new IOException(e);
                     }
                 }
@@ -260,9 +264,11 @@ class GostMockDTLSClient
         return ProtocolVersion.DTLSv12.only();
     }
 
-    protected int[] getSupportedCipherSuites() {
+    protected int[] getSupportedCipherSuites()
+    {
         // Для тестов оставляем только одну сюиту.
-        if (cipherSuite != 0) {
+        if (cipherSuite != 0)
+        {
             return new int[] {cipherSuite};
         }
         return super.getSupportedCipherSuites();

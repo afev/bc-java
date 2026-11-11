@@ -108,7 +108,8 @@ public class JceTlsSecretKey
             }
             case ExporterLabel.dtls_srtp:
             {
-                if (seed.length != 64) {
+                if (seed.length != 64)
+                {
                     throw new IllegalArgumentException("DTLS-SRTP exporter seed must contain both randoms.");
                 }
                 try
